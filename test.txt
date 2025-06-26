@@ -1,0 +1,2 @@
+new text: hello
+new text: goodbay
