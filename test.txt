@@ -1,2 +1,3 @@
 new text: hello
-new text: goodbay
+new text: goodbye
+new text: lesson 1
