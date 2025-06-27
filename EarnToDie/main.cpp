@@ -6,7 +6,7 @@ int main()
 {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
-
+    //new commit 
     sf::RenderWindow window(sf::VideoMode(800, 600), "SFML works!");
 
     sf::Texture boxTexture;
