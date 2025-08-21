@@ -16,7 +16,7 @@ void update(Box& box) {
     if (box.position.x - halh_size < 0) {
         box.position.x = halh_size;
     }
-    else if (box.position.x > 800) {
+    else if (box.position.x > 800 - halh_size) {
         box.position.x = 800 - halh_size;
     }
     
