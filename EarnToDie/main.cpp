@@ -1,57 +1,83 @@
 #include <SFML/Graphics.hpp>
-#include <cstdlib>
-#include <ctime>
+
+class Box {
+public:
+    sf::Vector2f position;
+    sf::Vector2f speed;
+    float size;
+};
+
+void update(Box& box) {
+    
+    box.position += box.speed;
+
+    float halh_size = box.size / 2;
+    
+    if (box.position.x - halh_size < 0) {
+        box.position.x = halh_size;
+    }
+    else if (box.position.x > 800) {
+        box.position.x = 800 - halh_size;
+    }
+    
+    if (box.position.y - halh_size < 0) {
+        box.position.y = halh_size;
+    }
+    else if (box.position.y + halh_size > 600) {
+        box.position.y = 600 - halh_size;
+    }
+}
+void keyboards (Box& box) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+        box.speed.x = -0.1f;
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+        box.speed.x = 0.1f;
+    }
+    else {
+        box.speed.x = 0.f;
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+        box.speed.y = -0.1f;
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+        box.speed.y = 0.1f;
+    }
+    else {
+        box.speed.y = 0.f;
+    }
+}
 
 int main()
 {
-    std::srand(static_cast<unsigned>(std::time(nullptr)));
- 
-    sf::RenderWindow window(sf::VideoMode(800, 600), "SFML works!");
+    sf::RenderWindow window(sf::VideoMode(800, 600), "My SFML");
 
-    sf::Texture boxTexture;
-    if (!boxTexture.loadFromFile("box.jpg")) {
-        return -1;
-    }
-    sf::Sprite boxSprite;
-    boxSprite.setTexture(boxTexture);
-    boxSprite.setPosition(
-        std::rand() % (800 - boxTexture.getSize().x),
-        std::rand() % (600 - boxTexture.getSize().y)
-    );
-    sf::Vector2f direction(
-        (std::rand() % 5) + 1,
-        (std::rand() % 5) + 1
-    );
+    Box box;
+    box.position = sf::Vector2f(400.f, 300.f);
+    box.speed = sf::Vector2f(0.f, 0.f);
+    box.size = 100.f;
 
-    while (window.isOpen())
-    {
+    sf::RectangleShape kub(sf::Vector2f(box.size, box.size));
+    kub.setOrigin(box.size / 2, box.size / 2);
+    kub.setFillColor(sf::Color::Green);
+
+
+    while (window.isOpen()) {
         sf::Event event;
-        while (window.pollEvent(event))
-        {
+        while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
         }
+        
+        keyboards(box);
+        update(box);
 
-        boxSprite.move(direction);
-
-        sf::Vector2f position = boxSprite.getPosition();
-        sf::Vector2u textureSize = boxTexture.getSize();
-
-        if (position.x <= 0 || position.x >= 800 - textureSize.x) {
-            direction.x = -direction.x;
-            direction.y += (std::rand() % 3) - 1;
-        }
-
-        if (position.y <= 0 || position.y >= 600 - textureSize.y) {
-            direction.y = -direction.y;
-            direction.x += (std::rand() % 3) - 1;
-        }
+        kub.setPosition(box.position);
 
         window.clear();
-        window.draw(boxSprite);
+        window.draw(kub);
         window.display();
-
-        sf::sleep(sf::milliseconds(16));
     }
 
     return 0;
