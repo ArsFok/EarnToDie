@@ -10,10 +10,6 @@ public:
 	Zomby();
 	~Zomby() = default;
 
-	void draw(RenderWindow& window);
-	void update(float dt, const RectangleShape& plaer);
-
-private:
 	RectangleShape shape;
 	Vector2f position;
 	float velocity;

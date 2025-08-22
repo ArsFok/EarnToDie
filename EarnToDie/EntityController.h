@@ -19,6 +19,7 @@ public:
 private:
 	void checkInputs();
 	void inputMove();
+	void zombyMove();
 
 	Clock clock;
 	float dt = 0.0f;

@@ -7,13 +7,23 @@ EntityController::EntityController() {
 }
 
 void EntityController::update(RenderWindow& window) {
-    dt = clock.restart().asSeconds();
 
 	checkInputs();
-    zomby->update(dt, entity->shape);
-
+    zombyMove();
 	window.draw(entity->shape);
-    zomby->draw(window);
+    window.draw(zomby->shape);
+}
+void EntityController::zombyMove() {
+    dt = clock.restart().asSeconds();
+
+    zomby->position.y = zomby->velocity * dt;
+
+    if (zomby->position.y > 600 + zomby->shape.getGlobalBounds().height / 2) {
+        zomby->position.y = -zomby->shape.getGlobalBounds().height;
+        zomby->position.x = static_cast<float>(zomby->distributionX(zomby->rng));
+    }
+    zomby->shape.setPosition(zomby->position);
+
 }
 void EntityController::checkInputs() {
 	inputMove();

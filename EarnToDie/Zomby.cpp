@@ -11,17 +11,3 @@ Zomby::Zomby() : rng(std::random_device{}()), distributionX(100, 700), velocity(
 
 	position = shape.getPosition();
 }
-
-void Zomby::draw(RenderWindow& window) {
-	window.draw(shape);
-}
-
-void Zomby::update(float dt, const RectangleShape& plaer) {
-	position.y += velocity * dt;
-
-	if (position.y > 600 + shape.getGlobalBounds().height / 2) {
-		position.y = -shape.getGlobalBounds().height;
-		position.x = static_cast<float>(distributionX(rng));
-	}
-	shape.setPosition(position);
-}
