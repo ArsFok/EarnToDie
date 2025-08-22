@@ -16,7 +16,7 @@ public:
 private:
 	RectangleShape shape;
 	Vector2f position;
-	float velocity = 0.1f;
+	float velocity;
 	std::mt19937 rng;
 	std::uniform_int_distribution<int> distributionX;
 };
