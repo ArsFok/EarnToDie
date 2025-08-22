@@ -13,6 +13,7 @@ public:
 	Vector2f speed;
 	float size;
 	RectangleShape shape;
+	RectangleShape Zomby;
 
 	void move(Vector2f direction);
 };

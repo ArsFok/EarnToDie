@@ -3,11 +3,17 @@
 
 EntityController::EntityController() {
 	entity = new Entity();
+    zomby = new Zomby();
 }
 
 void EntityController::update(RenderWindow& window) {
+    dt = clock.restart().asSeconds();
+
 	checkInputs();
+    zomby->update(dt, entity->shape);
+
 	window.draw(entity->shape);
+    zomby->draw(window);
 }
 void EntityController::checkInputs() {
 	inputMove();
@@ -43,4 +49,5 @@ void  EntityController::inputMove() {
 }
 EntityController::~EntityController() {
 	delete entity;
+    delete zomby;
 }

@@ -7,6 +7,7 @@ int main()
     sf::RenderWindow window(sf::VideoMode(800, 600), "My SFML");
 
     EntityController controller;
+    Clock clock;
     while (window.isOpen()) {
         window.clear();
         Event event;

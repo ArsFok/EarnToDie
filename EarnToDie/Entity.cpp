@@ -6,9 +6,16 @@ Entity::Entity() {
     speed = sf::Vector2f(0.1f, 0.1f);
 
     RectangleShape rect(Vector2f(100, 100));
-    rect.setOrigin(100.f / 2, 100.f / 2);
+    rect.setOrigin(50.f, 50.f);
+    rect.setPosition(400, 400);
     rect.setFillColor(sf::Color::Green);
+
+    RectangleShape zomby(Vector2f(50, 50));
+    zomby.setOrigin(50.f, 50.f);
+    zomby.setPosition(100, 100);
+    zomby.setFillColor(sf::Color::Red);
     shape = rect;
+    Zomby = zomby;
 }
 
 void Entity::move(Vector2f direction)
