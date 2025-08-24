@@ -20,7 +20,13 @@ private:
 	void checkInputs();
 	void inputMove();
 	void zombyMove();
+	bool checkCollision();
+	void handleCollision();
+
+	bool boundingBoxCollision();
 
 	Clock clock;
+	Clock spawnClock;
 	float dt = 0.0f;
+	std::vector<Zomby*> zombies;
 };

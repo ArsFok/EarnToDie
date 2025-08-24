@@ -1,29 +1,75 @@
 #include "EntityController.h"
 #include "Entity.h"
+#include "Zomby.h"
+#include <stdbool.h>
+#include <iostream>
+#include <cmath>
 
 EntityController::EntityController() {
 	entity = new Entity();
     zomby = new Zomby();
+
+    for (int i = 0; i < 1; i++) {
+        zombies.push_back(new Zomby());
+        zombies.back()->position.y = static_cast<float>(-100 * (i + 1));
+    }
 }
 
 void EntityController::update(RenderWindow& window) {
+    dt = clock.restart().asSeconds();
+
+    if (spawnClock.getElapsedTime().asSeconds() > 3.0f) {
+        zombies.push_back(new Zomby());
+        spawnClock.restart();
+    }
 
 	checkInputs();
     zombyMove();
+
+    for (auto& zombie : zombies) {
+        zomby = zombie;
+        if (checkCollision()) {
+            handleCollision();
+            break;
+        }
+    }
 	window.draw(entity->shape);
-    window.draw(zomby->shape);
+    for (auto& zombie : zombies) {
+        window.draw(zombie->shape);
+    }
 }
 void EntityController::zombyMove() {
-    dt = clock.restart().asSeconds();
 
-    zomby->position.y = zomby->velocity * dt;
+    for (auto it = zombies.begin(); it != zombies.end(); ) {
+        Zomby* zombie = *it;
+        zombie->position.y += zombie->velocity * dt;
 
-    if (zomby->position.y > 600 + zomby->shape.getGlobalBounds().height / 2) {
-        zomby->position.y = -zomby->shape.getGlobalBounds().height;
-        zomby->position.x = static_cast<float>(zomby->distributionX(zomby->rng));
+        if (zombie->position.y > 600 + zombie->shape.getGlobalBounds().height) {
+
+            delete zombie;
+            it = zombies.erase(it);
+            zombies.push_back(new Zomby());
+        }
+        else {
+            zombie->shape.setPosition(zombie->position);
+            ++it;
+        }
     }
-    zomby->shape.setPosition(zomby->position);
+}
+bool EntityController::checkCollision() {
+    return boundingBoxCollision();
+}
+bool EntityController::boundingBoxCollision() {
+    // AABB (Axis-Aligned Bounding Box) проверка
+    sf::FloatRect entityBounds = entity->shape.getGlobalBounds();
+    sf::FloatRect zombieBounds = zomby->shape.getGlobalBounds();
 
+    return entityBounds.intersects(zombieBounds);
+}
+void EntityController::handleCollision() {
+    zomby->position.y = -zomby->shape.getGlobalBounds().height;
+    zomby->position.x = static_cast<float>(zomby->distributionX(zomby->rng));
+    zomby->shape.setPosition(zomby->position);
 }
 void EntityController::checkInputs() {
 	inputMove();
@@ -60,4 +106,9 @@ void  EntityController::inputMove() {
 EntityController::~EntityController() {
 	delete entity;
     delete zomby;
+
+    for (auto& zombie : zombies) {
+        delete zombie;
+    }
+    zombies.clear();
 }

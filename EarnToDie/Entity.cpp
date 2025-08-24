@@ -3,7 +3,7 @@
 
 Entity::Entity() {
     size = 100.f;
-    speed = sf::Vector2f(0.1f, 0.1f);
+    speed = sf::Vector2f(5.f, 5.f);
 
     RectangleShape rect(Vector2f(100, 100));
     rect.setOrigin(50.f, 50.f);
@@ -11,7 +11,7 @@ Entity::Entity() {
     rect.setFillColor(sf::Color::Green);
 
     RectangleShape zomby(Vector2f(50, 50));
-    zomby.setOrigin(50.f, 50.f);
+    zomby.setOrigin(25.f, 25.f);
     zomby.setPosition(100, 100);
     zomby.setFillColor(sf::Color::Red);
     shape = rect;
