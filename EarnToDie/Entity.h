@@ -3,17 +3,18 @@
 
 using namespace sf;
 
-class Entity {
+
+class Entity
+{
 public:
-	Entity();
-	virtual ~Entity() {};
 
+    Entity();
+    virtual ~Entity() {}; 
 
-	Vector2f position;
-	Vector2f speed;
-	float size;
-	RectangleShape shape;
-	RectangleShape Zomby;
+    Vector2f position;
+    Vector2f speed;
+    float size;
+    RectangleShape shape;
 
-	void move(Vector2f direction);
+    void move(Vector2f direction);
 };

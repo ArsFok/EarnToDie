@@ -1,26 +1,23 @@
 #include "Entity.h"
+#include "const.h"
 #include <iostream>
 
-Entity::Entity() {
+Entity::Entity()
+{
     size = 100.f;
-    speed = sf::Vector2f(5.f, 5.f);
+    speed = sf::Vector2f(0.1f, 0.1f);
 
     RectangleShape rect(Vector2f(100, 100));
     rect.setOrigin(50.f, 50.f);
-    rect.setPosition(400, 400);
+    rect.setPosition(WINDOW_WIDTH/2, WINDOW_HEIGHT/2);
     rect.setFillColor(sf::Color::Green);
-
-    RectangleShape zomby(Vector2f(50, 50));
-    zomby.setOrigin(25.f, 25.f);
-    zomby.setPosition(100, 100);
-    zomby.setFillColor(sf::Color::Red);
     shape = rect;
-    Zomby = zomby;
 }
+
 
 void Entity::move(Vector2f direction)
 {
-    shape.setPosition(shape.getPosition() + direction);
+    shape.setPosition(shape.getPosition() + Vector2f(direction.x * speed.x, direction.y * speed.y));
 
     float halh_size = size / 2;
 
