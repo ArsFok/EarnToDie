@@ -19,7 +19,7 @@ void createEnemies(float& enemySpawnTimer, const float enemySpawnRate, vector<un
         enemySpawnTimer = 0.0f;
 
         bool isCircle = rand() % 2 == 0;
-        float speed = 0.01f;
+        float speed = 0.05f;
         int damage = 1;
 
         Vector2f position(rand() % (WINDOW_WIDTH - 60), -60);
@@ -46,7 +46,7 @@ int main()
     EntityController controller;
     
     vector<unique_ptr<EnemyController>> enemies;
-    const float enemySpawnRate = 2.0f;
+    const float enemySpawnRate = 0.5f;
     float enemySpawnTimer = 0.0f;
     Clock enemySpawnClock;
 
@@ -63,6 +63,7 @@ int main()
         for (auto it = enemies.begin(); it != enemies.end();) {
             bool shouldRemove = (*it)->update();
             if (shouldRemove) {
+                gameState.decreaseFuel(1);
                 it = enemies.erase(it);
             }
             else {

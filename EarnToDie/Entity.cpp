@@ -9,7 +9,7 @@ Entity::Entity()
 
     RectangleShape rect(Vector2f(100, 100));
     rect.setOrigin(50.f, 50.f);
-    rect.setPosition(WINDOW_WIDTH/2, WINDOW_HEIGHT/2);
+    rect.setPosition(WINDOW_WIDTH/2, WINDOW_HEIGHT - 100);
     rect.setFillColor(sf::Color::Green);
     shape = rect;
 }

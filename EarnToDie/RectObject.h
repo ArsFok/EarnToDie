@@ -9,6 +9,6 @@ public:
     RectObject(float size, Vector2f startPosition, int damage)
         : MovingObject(new RectangleShape(Vector2f(size, size)), startPosition, damage) {
         shape->setOrigin(size / 2, size / 2);
-        shape->setFillColor(sf::Color::Green);
+        shape->setFillColor(sf::Color::Red);
     }
 };

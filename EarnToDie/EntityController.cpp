@@ -37,7 +37,7 @@ void EntityController::inputMove()
     else {
         direction.x = -0;
     }
-
+    /*
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
         direction.y = -1;
     }
@@ -49,6 +49,9 @@ void EntityController::inputMove()
     }
 
     if (direction.x == 0 && direction.y == 0) {
+        return;
+    }*/
+    if (direction.x == 0) {
         return;
     }
 
