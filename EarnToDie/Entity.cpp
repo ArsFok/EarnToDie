@@ -5,9 +5,9 @@
 Entity::Entity()
 {
     size = 100.f;
-    speed = sf::Vector2f(0.1f, 0.1f);
+    speed = sf::Vector2f(1.0f, 1.0f);
 
-    RectangleShape rect(Vector2f(100, 100));
+    RectangleShape rect(Vector2f(BOX_HEIGHT, BOX_WIDTH));
     rect.setOrigin(50.f, 50.f);
     rect.setPosition(WINDOW_WIDTH/2, WINDOW_HEIGHT - 100);
     rect.setFillColor(sf::Color::Green);
@@ -24,18 +24,11 @@ void Entity::move(Vector2f direction)
     float newX = shape.getPosition().x;
     float newY = shape.getPosition().y;
 
-    if (newX - halh_size < 0) {
-        newX = halh_size;
+    if (newX - halh_size < 240) {
+        newX = halh_size + 240;
     }
-    else if (newX + halh_size > 800) {
-        newX = 800 - halh_size;
-    }
-
-    if (newY - halh_size < 0) {
-        newY = halh_size;
-    }
-    else if (newY + halh_size > 600) {
-        newY = 600 - halh_size;
+    else if (newX + halh_size > WINDOW_WIDTH - 225) {
+        newX = WINDOW_WIDTH - halh_size - 225;
     }
     shape.setPosition(newX, newY);
 }
