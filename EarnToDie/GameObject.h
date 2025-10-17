@@ -6,13 +6,19 @@ using namespace sf;
 class GameObject{
 public:
 	Shape* shape;
+	Texture* texture;
 
-	GameObject(Shape* shapePtr, Vector2f startPosition) : shape(shapePtr) {
+	GameObject(Shape* shapePtr, Vector2f startPosition, Texture* tex = nullptr) : shape(shapePtr), texture(tex) {
 		shape->setPosition(startPosition); //не доконца понял, как работает этот конструктор
+
+		if (texture) {
+			shape->setTexture(texture);
+		}
 	}
 
 	virtual ~GameObject() {
 		delete shape;
+		delete texture;
 	}
 	// почему виртуальные функции
 	virtual void update(Vector2f moveDirection) = 0;

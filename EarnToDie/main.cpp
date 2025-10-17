@@ -4,6 +4,7 @@
 #include "EnemyController.h"
 #include "CircleObject.h"
 #include "RectObject.h"
+#include "RectangleObject.h"
 #include "main.h"
 #include "GameState.h"
 #include <vector>
@@ -14,28 +15,58 @@
 using namespace sf;
 using namespace std;
 
+vector<unique_ptr<StaticObject>> staticObjects;
+vector<unique_ptr<EnemyController>> enemies;
+
 void createEnemies(float& enemySpawnTimer, const float enemySpawnRate, vector<unique_ptr<EnemyController>>& enemies, GameState& gameState) {
     if (!gameState.isPlaying()) return;
     if (enemySpawnTimer >= enemySpawnRate) {
         enemySpawnTimer = 0.0f;
 
-        bool isCircle = rand() % 2 == 0;
+        bool isCircle = rand() % 3 == 0;
+        bool isRect = rand() % 3 == 0;
         float speed = 1.0f;
         int gold = 1;
 
-        Vector2f position(240 + rand() % (WINDOW_WIDTH - 225 - 240), -60);
+        bool creatGroup = rand() % 3 == 0;
+        int groupSize = 0;
 
-        unique_ptr<MovingObject> enemy;
+        if (creatGroup) {
+            groupSize = 2 + rand() % 3;
+        }
 
-        if (isCircle) {
-            float radius = 15 + rand() % 20;
-            enemy = make_unique<CircleObject>(radius, position, gold);
+        if (creatGroup && groupSize > 1) {
+            float startX = 240 + rand() % (WINDOW_WIDTH - 235 - 250 - (groupSize * 50));
+            float spacing = 50.f;
+
+            for (int i = 0; i < groupSize; i++) {
+                Vector2f position(startX + i * spacing, -60);
+                unique_ptr<MovingObject> enemy;
+                float size = 40;
+                enemy = make_unique<RectObject>(size, position, gold + 5);
+                enemies.push_back(make_unique<EnemyController>(move(enemy), speed));
+            }
         }
         else {
-            float size = 20 + rand() % 30;
-            enemy = make_unique<RectObject>(size, position, gold + 5);
+            Vector2f position(240 + rand() % (WINDOW_WIDTH - 235 - 250), -60);
+
+            unique_ptr<MovingObject> enemy;
+
+            if (isCircle) {
+                float radius = 40;
+                staticObjects.push_back(make_unique<CircleObject>(radius, position));
+            }
+            else if (isRect) {
+                float size = 40;
+                enemy = make_unique<RectObject>(size, position, gold + 5);
+            }
+            else {
+                float size_a = 70;
+                float size_b = 100;
+                enemy = make_unique<RectangleObject>(size_a, size_b, position, gold + 7);
+            }
+            enemies.push_back(make_unique<EnemyController>(move(enemy), speed));
         }
-        enemies.push_back(make_unique<EnemyController>(move(enemy), speed));
     }
 }
 
@@ -83,7 +114,6 @@ int main()
     Clock enemySpawnClock;
 
     while (window.isOpen()) {
-        window.clear();
         Event event;
         while (window.pollEvent(event)) {
             if (event.type == Event::Closed)
@@ -99,12 +129,13 @@ int main()
         if (controller.isGameFinal() && !gameState.isGameOver()) {
             gameState.setGameOver();
         }
+
         window.clear();
 
         if (gameState.isPlaying() && !controller.isGamePaused() && !controller.isGameFinal()) {
             float deltaTime = enemySpawnClock.restart().asSeconds();
             float scaledDeltaTime = deltaTime * controller.getGameSpeed();
-            int speed = controller.getGameSpeed() * 20;
+            int speed = controller.getGameSpeed() * 50;
 
             backgroundY1 += backgroundSpeed * scaledDeltaTime;
             backgroundY2 += backgroundSpeed * scaledDeltaTime;
@@ -121,9 +152,10 @@ int main()
 
             enemySpawnTimer += scaledDeltaTime;
             createEnemies(enemySpawnTimer, enemySpawnRate, enemies, gameState);
+            dist = speed * enemySpawnTimer;
+
             for (auto it = enemies.begin(); it != enemies.end();) {
                 bool shouldRemove = (*it)->update();
-                dist = speed * enemySpawnTimer;
                 if (shouldRemove) {
                     gameState.decreaseFuel(fuel);
                     gameState.decreaseSpeed(speed);
@@ -134,13 +166,16 @@ int main()
                     ++it;
                 }
             }
-            for (auto it = enemies.begin(); it != enemies.end();) {
-                if ((*it)->getEnemy()->checkCollision(controller.getEntity()->shape)) {
-                    gameState.decreaseGold(10);
-                    it = enemies.erase(it);
-                }
-                else {
-                    ++it;
+            Entity* playerEntity = controller.getEntity();
+            if (playerEntity) {
+                for (auto it = enemies.begin(); it != enemies.end();) {
+                    if ((*it)->getEnemy()->checkCollision(controller.getEntity()->shape)) {
+                        gameState.decreaseGold(10);
+                        it = enemies.erase(it);
+                    }
+                    else {
+                        ++it;
+                    }
                 }
             }
         }

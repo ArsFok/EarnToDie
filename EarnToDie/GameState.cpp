@@ -46,7 +46,7 @@ void GameState::decreaseFuel(int fuel) {
 }
 void GameState::decreaseDist(int dist) {
 	playerDist += dist;
-	if (dist > 1000) {
+	if (playerDist > 1000) {
 		setGameOver();
 	}
 	cout << "[decreaseD:]" << playerDist << endl;

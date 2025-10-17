@@ -28,10 +28,6 @@ void EntityController::inputMove()
 {
     static Clock inputCooldown;
     float cooldownTime = inputCooldown.getElapsedTime().asSeconds();
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) && cooldownTime > 0.2f) {
-        m_isPaused = !m_isPaused;
-        inputCooldown.restart();
-    }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && cooldownTime > 0.2f) {
         m_shouldRestart = true;
         m_isFinal = false;
@@ -41,20 +37,27 @@ void EntityController::inputMove()
         m_isFinal = !m_isFinal;
         inputCooldown.restart();
     }
+    if (m_isFinal) {
+        return;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) && cooldownTime > 0.2f) {
+        m_isPaused = !m_isPaused;
+        inputCooldown.restart();
+    }
     bool shiftPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::RShift);
     if (shiftPressed != m_isShiftPressed) {
         m_isShiftPressed = shiftPressed;
         updateGameSpeed();
     }
-    if (m_isPaused || m_isFinal) {
+    if (m_isPaused) {
         return;
     }
     Vector2f direction;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
         direction.x = -1;
     }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
         direction.x = 1;
     }
     else {
@@ -79,7 +82,7 @@ void EntityController::inputMove()
 }
 void EntityController::updateGameSpeed() {
     if (m_isShiftPressed) {
-        m_gameSpeed = m_baseGameSpeed * 1.5f;
+        m_gameSpeed = m_baseGameSpeed * 2.0f;
     }
     else {
         m_gameSpeed = m_baseGameSpeed;

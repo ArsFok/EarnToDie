@@ -134,6 +134,7 @@
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MovingObject.cpp" />
+    <ClCompile Include="RectangleObject.cpp" />
     <ClCompile Include="RectObject.cpp" />
     <ClCompile Include="StaticObject.cpp" />
   </ItemGroup>
@@ -147,10 +148,12 @@
     <ClInclude Include="GameState.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="MovingObject.h" />
+    <ClInclude Include="RectangleObject.h" />
     <ClInclude Include="RectObject.h" />
     <ClInclude Include="StaticObject.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\..\..\..\..\Downloads\car.png" />
     <Image Include="background.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
