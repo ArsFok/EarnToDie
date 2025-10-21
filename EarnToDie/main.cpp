@@ -2,6 +2,7 @@
 #include "EntityController.h"
 #include "const.h"
 #include "EnemyController.h"
+#include "ObjectController.h"
 #include "CircleObject.h"
 #include "RectObject.h"
 #include "main.h"
@@ -19,7 +20,6 @@ void createEnemies(float& enemySpawnTimer, const float enemySpawnRate, vector<un
     if (enemySpawnTimer >= enemySpawnRate) {
         enemySpawnTimer = 0.0f;
 
-        bool isCircle = rand() % 2 == 0;
         float speed = 1.0f;
         int gold = 1;
 
@@ -27,24 +27,37 @@ void createEnemies(float& enemySpawnTimer, const float enemySpawnRate, vector<un
 
         unique_ptr<MovingObject> enemy;
 
-        if (isCircle) {
-            float radius = 15 + rand() % 20;
-            enemy = make_unique<CircleObject>(radius, position, gold);
-        }
-        else {
-            float size = 20 + rand() % 30;
-            enemy = make_unique<RectObject>(size, position, gold + 5);
-        }
+        float size = 20 + rand() % 30;
+        enemy = make_unique<RectObject>(size, position, gold + 5);
         enemies.push_back(make_unique<EnemyController>(move(enemy), speed));
     }
 }
+void createSubject(float& enemySpawnTimer, const float enemySpawnRate, vector<unique_ptr<ObjectController>>& subjects, GameState& gameState) {
+    if (!gameState.isPlaying()) return;
+    if (enemySpawnTimer >= enemySpawnRate) {
+        enemySpawnTimer = 0.0f;
 
-void resetGame(GameState& gameState, vector<unique_ptr<EnemyController>>& enemies,
-    EntityController& controller, float& enemySpawnTimer) {
-    gameState.restartGame();
-    enemies.clear();
-    enemySpawnTimer = 0.0f;
+        float speed = 1.0f;
+
+        Vector2f position(240 + rand() % (WINDOW_WIDTH - 225 - 240), -60);
+        float radius = 15 + rand() % 20;
+
+        unique_ptr<StaticObject> subject = make_unique<CircleObject>(radius, position);
+        subjects.push_back(make_unique<ObjectController>(move(subject), speed));
+    }
 }
+
+    void resetGame(GameState & gameState, vector<unique_ptr<EnemyController>>&enemies, vector<unique_ptr<ObjectController>>& subjects, EntityController& controller,
+        float& enemySpawnTimer, float& subjectSpawnTimer, int& distance){
+        gameState.restartGame();
+        enemies.clear();
+        subjects.clear();
+        enemySpawnTimer = 0.0f;
+        subjectSpawnTimer = 0.0f;
+        distance = 0;
+    
+}
+
 int main()
 {
     RenderWindow window(VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "EarnToDie");
@@ -72,15 +85,23 @@ int main()
     float backgroundY2 = -static_cast<float>(WINDOW_HEIGHT);
 
     GameState gameState;
-
     EntityController controller;
     
     vector<unique_ptr<EnemyController>> enemies;
+    vector<unique_ptr<ObjectController>> subjects;
+
+
     const float enemySpawnRate = 0.5f;
+    const float subjectSpawnRate = 1.0f;
+
     float enemySpawnTimer = 0.0f;
+    float subjectSpawnTimer = 0.0f;
+    float distanceTimer = 0.0f;
+    
+    int speed = 0;
     int dist = 0;
-    int fuel = 350; // бак размером 1 ур: 350 л, 2 ур: 450, 3 ур: 500, 4 ур: 600
-    Clock enemySpawnClock;
+    //int fuel = 350; // бак размером 1 ур: 350 л, 2 ур: 450, 3 ур: 500, 4 ур: 600
+    Clock gameClock;
 
     while (window.isOpen()) {
         window.clear();
@@ -93,7 +114,7 @@ int main()
             gameState.setPaused(controller.isGamePaused());
         }
         if (controller.shouldRestartGame()) {
-            resetGame(gameState, enemies, controller, enemySpawnTimer);
+            resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, dist);
             controller.resetRestartFlag();
         }
         if (controller.isGameFinal() && !gameState.isGameOver()) {
@@ -102,12 +123,21 @@ int main()
         window.clear();
 
         if (gameState.isPlaying() && !controller.isGamePaused() && !controller.isGameFinal()) {
-            float deltaTime = enemySpawnClock.restart().asSeconds();
+            float deltaTime = gameClock.restart().asSeconds();
             float scaledDeltaTime = deltaTime * controller.getGameSpeed();
-            int speed = controller.getGameSpeed() * 20;
+            speed = controller.getGameSpeed();
 
-            backgroundY1 += backgroundSpeed * scaledDeltaTime;
-            backgroundY2 += backgroundSpeed * scaledDeltaTime;
+            float movement = backgroundSpeed * scaledDeltaTime;
+
+            backgroundY1 += movement;
+            backgroundY2 += movement;
+
+            distanceTimer += deltaTime;
+            if (distanceTimer >= 1.0f) { // Каждую секунду
+                dist += speed * distanceTimer; // Прибавляем пройденное расстояние за секунду
+                distanceTimer = 0.0f;
+                gameState.decreaseDist(dist);
+            }
 
             if (backgroundY1 >= WINDOW_HEIGHT) {
                 backgroundY1 = backgroundY2 - WINDOW_HEIGHT;
@@ -120,24 +150,33 @@ int main()
             background2.setPosition(0, backgroundY2);
 
             enemySpawnTimer += scaledDeltaTime;
+            subjectSpawnTimer += scaledDeltaTime;
+
             createEnemies(enemySpawnTimer, enemySpawnRate, enemies, gameState);
+            createSubject(subjectSpawnTimer, subjectSpawnRate, subjects, gameState);
+
             for (auto it = enemies.begin(); it != enemies.end();) {
                 bool shouldRemove = (*it)->update();
-                dist = speed * enemySpawnTimer;
+
+                if ((*it)->getEnemy()->checkCollision(controller.getEntity()->shape)) {
+                    gameState.decreaseGold(10);
+                    it = enemies.erase(it);
+                    continue;
+                }
+
                 if (shouldRemove) {
-                    gameState.decreaseFuel(fuel);
-                    gameState.decreaseSpeed(speed);
-                    gameState.decreaseDist(dist);
+                    gameState.decreaseFuel(1);
                     it = enemies.erase(it);
                 }
                 else {
                     ++it;
                 }
             }
-            for (auto it = enemies.begin(); it != enemies.end();) {
-                if ((*it)->getEnemy()->checkCollision(controller.getEntity()->shape)) {
-                    gameState.decreaseGold(10);
-                    it = enemies.erase(it);
+            for (auto it = subjects.begin(); it != subjects.end();) {
+                bool shouldRemove = (*it)->update();
+
+                if (shouldRemove) {
+                    it = subjects.erase(it);
                 }
                 else {
                     ++it;
@@ -149,6 +188,9 @@ int main()
 
         for (const auto& enemy : enemies) {
             enemy->draw(window);
+        }
+        for (const auto& subject : subjects) {
+            subject->draw(window);
         }
 
         gameState.draw(window);

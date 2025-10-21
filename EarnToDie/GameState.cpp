@@ -36,7 +36,7 @@ void GameState::decreaseSpeed(int speed) {
 	updateSpeedText();
 }
 void GameState::decreaseFuel(int fuel) {
-	playerFuel -= 1;
+	playerFuel -= fuel;
 	if (playerFuel < 0) {
 		playerFuel = 0;
 		setGameOver();

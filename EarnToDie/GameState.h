@@ -103,4 +103,3 @@ private:
 	Text gameOverText;
 	RectangleShape pauseOverlay;
 };
-

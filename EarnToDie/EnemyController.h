@@ -2,7 +2,6 @@
 #include <memory>
 #include "MovingObject.h"
 
-
 using namespace std;
 using namespace sf;
 
