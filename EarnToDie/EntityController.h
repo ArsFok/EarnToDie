@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>;
 #include "Entity.h"
+#include "const.h"
 
 using namespace sf;
 
@@ -32,8 +33,8 @@ private:
 	bool m_isFinal = false;
 	bool m_shouldRestart = false;
 
-	float m_baseGameSpeed = 1.0f;    // Базовая скорость (без ускорения)
-	float m_gameSpeed = 1.0f;        // Текущая скорость (с учетом ускорения)
+	float m_baseGameSpeed = SPEED;    // Базовая скорость (без ускорения)
+	float m_gameSpeed = SPEED;        // Текущая скорость (с учетом ускорения)
 
 	void checkInputs();
 	void inputMove();

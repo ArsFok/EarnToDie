@@ -6,3 +6,6 @@ constexpr int WINDOW_WIDTH = 1440;
 
 constexpr int BOX_HEIGHT = 100;
 constexpr int BOX_WIDTH = 100;
+
+constexpr int FUEL = 200;
+constexpr float SPEED = 1.0f;

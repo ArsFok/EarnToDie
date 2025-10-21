@@ -13,7 +13,7 @@ public:
 		Paused,
 		GameOver
 	};
-	GameState() : playerSpeed(100), playerFuel(100), playerDist(0), playerGold(0), m_gameStatus(GameStatus::Playing) {
+	GameState() : playerSpeed(0), playerFuel(FUEL), playerDist(0), playerGold(0), m_gameStatus(GameStatus::Playing) {
 		font.loadFromFile("C:/Windows/Fonts/Arial.ttf");
 		speedText.setFont(font);
 		speedText.setCharacterSize(24);
@@ -75,8 +75,8 @@ public:
 	void setGameOver() { m_gameStatus = GameStatus::GameOver; }
 	void restartGame() {
 		m_gameStatus = GameStatus::Playing;
-		playerSpeed = 20;
-		playerFuel = 100;
+		playerSpeed = 0;
+		playerFuel = FUEL;
 		playerGold = 0;
 		playerDist = 0;
 		updateSpeedText();
@@ -86,11 +86,17 @@ public:
 	}
 	GameStatus getGameStatus() const { return m_gameStatus; }
 
+	void loadGold();
+	void saveGold();
+	void addGold(int amount);
+	int getTotalGold() const;
+
 private:
-	int playerSpeed;	// Скорость  
+	float playerSpeed;	// Скорость  
 	int playerFuel;		// Топливо 
 	int playerDist;		// Расстояние
 	int playerGold;		// Золото
+	int totalGold;		// Общее золото за все время
 	GameStatus m_gameStatus;
 
 	Font font;

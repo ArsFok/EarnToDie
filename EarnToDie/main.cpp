@@ -15,32 +15,32 @@
 using namespace sf;
 using namespace std;
 
-void createEnemies(float& enemySpawnTimer, const float enemySpawnRate, vector<unique_ptr<EnemyController>>& enemies, GameState& gameState) {
+void createEnemies(float& enemySpawnTimer, const float enemySpawnRate, vector<unique_ptr<EnemyController>>& enemies, GameState& gameState, float new_speed) {
     if (!gameState.isPlaying()) return;
     if (enemySpawnTimer >= enemySpawnRate) {
         enemySpawnTimer = 0.0f;
 
-        float speed = 1.0f;
+        float speed = new_speed;
         int gold = 1;
 
-        Vector2f position(240 + rand() % (WINDOW_WIDTH - 225 - 240), -60);
+        Vector2f position(240 + rand() % (WINDOW_WIDTH - 485), -60);
 
         unique_ptr<MovingObject> enemy;
 
-        float size = 20 + rand() % 30;
+        float size = 70;
         enemy = make_unique<RectObject>(size, position, gold + 5);
         enemies.push_back(make_unique<EnemyController>(move(enemy), speed));
     }
 }
-void createSubject(float& enemySpawnTimer, const float enemySpawnRate, vector<unique_ptr<ObjectController>>& subjects, GameState& gameState) {
+void createSubject(float& enemySpawnTimer, const float enemySpawnRate, vector<unique_ptr<ObjectController>>& subjects, GameState& gameState, float new_speed) {
     if (!gameState.isPlaying()) return;
     if (enemySpawnTimer >= enemySpawnRate) {
         enemySpawnTimer = 0.0f;
 
-        float speed = 1.0f;
+        float speed = new_speed;
 
-        Vector2f position(240 + rand() % (WINDOW_WIDTH - 225 - 240), -60);
-        float radius = 15 + rand() % 20;
+        Vector2f position(240 + rand() % (WINDOW_WIDTH - 495), -60);
+        float radius = 30;
 
         unique_ptr<StaticObject> subject = make_unique<CircleObject>(radius, position);
         subjects.push_back(make_unique<ObjectController>(move(subject), speed));
@@ -90,16 +90,17 @@ int main()
     vector<unique_ptr<EnemyController>> enemies;
     vector<unique_ptr<ObjectController>> subjects;
 
-
-    const float enemySpawnRate = 0.5f;
-    const float subjectSpawnRate = 1.0f;
+    float enemySpawnRate = 1.0f;
+    const float subjectSpawnRate = 1.5f;
 
     float enemySpawnTimer = 0.0f;
     float subjectSpawnTimer = 0.0f;
     float distanceTimer = 0.0f;
+    float fuelTimer = 0.0f;
     
-    int speed = 0;
+    float speed = 0;
     int dist = 0;
+    int distance = 0;
     //int fuel = 350; // бак размером 1 ур: 350 л, 2 ур: 450, 3 ур: 500, 4 ур: 600
     Clock gameClock;
 
@@ -126,6 +127,14 @@ int main()
             float deltaTime = gameClock.restart().asSeconds();
             float scaledDeltaTime = deltaTime * controller.getGameSpeed();
             speed = controller.getGameSpeed();
+            gameState.decreaseSpeed(speed);
+
+            fuelTimer += deltaTime;
+            if (fuelTimer >= 1.0f) {
+                int fuel = static_cast<int>(speed);
+                gameState.decreaseFuel(fuel);
+                fuelTimer = 0.0f;
+            }
 
             float movement = backgroundSpeed * scaledDeltaTime;
 
@@ -134,11 +143,11 @@ int main()
 
             distanceTimer += deltaTime;
             if (distanceTimer >= 1.0f) { //  аждую секунду
-                dist += speed * distanceTimer; // ѕрибавл€ем пройденное рассто€ние за секунду
+                dist = speed * distanceTimer; // ѕрибавл€ем пройденное рассто€ние за секунду
                 distanceTimer = 0.0f;
                 gameState.decreaseDist(dist);
+                distance += dist;
             }
-
             if (backgroundY1 >= WINDOW_HEIGHT) {
                 backgroundY1 = backgroundY2 - WINDOW_HEIGHT;
             }
@@ -152,8 +161,13 @@ int main()
             enemySpawnTimer += scaledDeltaTime;
             subjectSpawnTimer += scaledDeltaTime;
 
-            createEnemies(enemySpawnTimer, enemySpawnRate, enemies, gameState);
-            createSubject(subjectSpawnTimer, subjectSpawnRate, subjects, gameState);
+            if (distance > 100){
+                enemySpawnRate = 0.5f;
+            }
+
+
+            createEnemies(enemySpawnTimer, enemySpawnRate, enemies, gameState, speed);
+            createSubject(subjectSpawnTimer, subjectSpawnRate, subjects, gameState, speed);
 
             for (auto it = enemies.begin(); it != enemies.end();) {
                 bool shouldRemove = (*it)->update();
@@ -165,7 +179,6 @@ int main()
                 }
 
                 if (shouldRemove) {
-                    gameState.decreaseFuel(1);
                     it = enemies.erase(it);
                 }
                 else {

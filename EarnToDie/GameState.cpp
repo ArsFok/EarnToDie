@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include <fstream>
 
 using namespace std;
 
@@ -27,12 +28,12 @@ void GameState::draw(RenderWindow& window) {
 
 void GameState::decreaseGold(int gold) {
 	playerGold += gold;
-	cout << "[decreaseG:]" << playerGold << endl;
+	cout << "[decreaseGOLD:]" << playerGold << endl;
 	updateGoldText();
 }
 void GameState::decreaseSpeed(int speed) {
 	playerSpeed = speed;
-	cout << playerSpeed << endl;
+	cout <<"[decreaseSPEED:]" << playerSpeed << endl;
 	updateSpeedText();
 }
 void GameState::decreaseFuel(int fuel) {
@@ -41,15 +42,15 @@ void GameState::decreaseFuel(int fuel) {
 		playerFuel = 0;
 		setGameOver();
 	}
-	cout << "[decreaseF:]" << playerFuel << endl;
+	cout << "[decreaseFUEL:]" << playerFuel << endl;
 	updateFuelText();
 }
 void GameState::decreaseDist(int dist) {
 	playerDist += dist;
-	if (dist > 1000) {
+	if (playerDist > 1000) {
 		setGameOver();
 	}
-	cout << "[decreaseD:]" << playerDist << endl;
+	cout << "[decreaseDIST:]" << playerDist << endl;
 	updateDistText();
 }
 
@@ -60,8 +61,14 @@ void GameState::updateGoldText() {
 }
 void GameState::updateSpeedText() {
 	stringstream ss;
-	ss << "Speed: " << playerSpeed;
-	speedText.setString(ss.str());
+	if (playerSpeed == 1) {
+		ss << "Speed: " << playerSpeed * 30;
+		speedText.setString(ss.str());
+	}
+	else {
+		ss << "Speed: " << playerSpeed * 40;
+		speedText.setString(ss.str());
+	}
 }
 
 void GameState::updateFuelText() {
@@ -74,4 +81,35 @@ void GameState::updateDistText() {
 	stringstream ss;
 	ss << "Distation: " << playerDist << "/1000";
 	distText.setString(ss.str());
+}
+void GameState::loadGold() {
+	ifstream file("savegame.dat");
+	if (file.is_open()) {
+		file >> totalGold;
+		file.close();
+		cout << "Loaded gold: " << totalGold << endl;
+	}
+	else {
+		totalGold = 0;
+		cout << "No save file found, starting with 0 gold" << endl;
+	}
+	playerGold = 0;
+}
+void GameState::saveGold() {
+	ofstream file("savegame.dat");
+	if (file.is_open()) {
+		file << totalGold;
+		file.close();
+		cout << "Saved gold: " << totalGold << endl;
+	}
+	else {
+		cout << "Error saving gold!" << endl;
+	}
+}
+void GameState::addGold(int amount) {
+	playerGold += amount;
+	totalGold += amount;
+}
+int GameState::getTotalGold() const{
+	return totalGold;
 }

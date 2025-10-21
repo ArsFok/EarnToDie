@@ -1,6 +1,9 @@
 #include "EntityController.h"
 #include <iostream>
 #include "Entity.h"
+#include "GameState.h"
+
+GameState gameState;
 
 
 EntityController::EntityController()
@@ -79,7 +82,7 @@ void EntityController::inputMove()
 }
 void EntityController::updateGameSpeed() {
     if (m_isShiftPressed) {
-        m_gameSpeed = m_baseGameSpeed * 1.5f;
+        m_gameSpeed = m_baseGameSpeed * 2.0f;
     }
     else {
         m_gameSpeed = m_baseGameSpeed;
