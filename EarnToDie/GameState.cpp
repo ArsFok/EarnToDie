@@ -26,14 +26,8 @@ void GameState::draw(RenderWindow& window) {
 	}
 }
 
-void GameState::decreaseGold(int gold) {
-	playerGold += gold;
-	cout << "[decreaseGOLD:]" << playerGold << endl;
-	updateGoldText();
-}
 void GameState::decreaseSpeed(int speed) {
 	playerSpeed = speed;
-	cout <<"[decreaseSPEED:]" << playerSpeed << endl;
 	updateSpeedText();
 }
 void GameState::decreaseFuel(int fuel) {
@@ -109,6 +103,9 @@ void GameState::saveGold() {
 void GameState::addGold(int amount) {
 	playerGold += amount;
 	totalGold += amount;
+	cout << "[decreaseGOLD:]" << playerGold << endl;
+	updateGoldText();
+
 }
 int GameState::getTotalGold() const{
 	return totalGold;

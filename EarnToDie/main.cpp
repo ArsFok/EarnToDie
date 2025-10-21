@@ -7,6 +7,7 @@
 #include "RectObject.h"
 #include "main.h"
 #include "GameState.h"
+#include "GameMenu.h"
 #include <vector>
 #include <ctime>
 #include <memory>
@@ -62,6 +63,11 @@ int main()
 {
     RenderWindow window(VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "EarnToDie");
 
+    GameState gameState;
+    EntityController controller;
+
+    GameMenu menu(window, controller);
+
     Texture backgroundTexture;
 
     if (!backgroundTexture.loadFromFile("background.jpg")) {
@@ -83,9 +89,6 @@ int main()
     float backgroundSpeed = 400.0f;
     float backgroundY1 = 0.0f;
     float backgroundY2 = -static_cast<float>(WINDOW_HEIGHT);
-
-    GameState gameState;
-    EntityController controller;
     
     vector<unique_ptr<EnemyController>> enemies;
     vector<unique_ptr<ObjectController>> subjects;
@@ -97,6 +100,7 @@ int main()
     float subjectSpawnTimer = 0.0f;
     float distanceTimer = 0.0f;
     float fuelTimer = 0.0f;
+    float saveTimer = 0.0f;
     
     float speed = 0;
     int dist = 0;
@@ -104,8 +108,19 @@ int main()
     //int fuel = 350; // бак размером 1 ур: 350 л, 2 ур: 450, 3 ур: 500, 4 ур: 600
     Clock gameClock;
 
+    gameState.loadGold();
+
     while (window.isOpen()) {
-        window.clear();
+        if (menu.isActive()) {
+            menu.update();
+            menu.render();
+
+            if (!menu.isActive() && menu.getMenuResult() == MenuItems::START_GAME) {
+                gameState.restartGame();
+                resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, distance);
+            }
+            continue;
+        }
         Event event;
         while (window.pollEvent(event)) {
             if (event.type == Event::Closed)
@@ -173,7 +188,7 @@ int main()
                 bool shouldRemove = (*it)->update();
 
                 if ((*it)->getEnemy()->checkCollision(controller.getEntity()->shape)) {
-                    gameState.decreaseGold(10);
+                    gameState.addGold(10);
                     it = enemies.erase(it);
                     continue;
                 }
@@ -211,5 +226,6 @@ int main()
 
         window.display();
     }
+    gameState.saveGold();
     return 0;
 }

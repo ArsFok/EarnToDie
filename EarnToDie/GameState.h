@@ -58,7 +58,6 @@ public:
 		updateGoldText();
 	}
 	void draw(RenderWindow& window);
-	void decreaseGold(int gold);
 	void updateGoldText();
 	void decreaseSpeed(int damage);
 	void updateSpeedText();

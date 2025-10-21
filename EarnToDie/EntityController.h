@@ -19,14 +19,20 @@ public:
 	Entity* getEntity();
 
 	bool isGamePaused() const { return m_isPaused; }
-	bool isGameFinal() const { return m_isFinal; }
-	void setPaused(bool paused) { m_isPaused = paused; }
-	void setFinal(bool final) { m_isFinal = final; }
 	bool shouldRestartGame() const { return m_shouldRestart; }
+	bool isGameFinal() const { return m_isFinal; }
+
+	void setPaused(bool paused) { m_isPaused = paused; }
 	void resetRestartFlag() { m_shouldRestart = false; }
+	void setFinal(bool final) { m_isFinal = final; }
 
 	float getGameSpeed() const { return m_gameSpeed; }
 	float getBaseGameSpeed() const { return m_baseGameSpeed; }
+
+	void moveUp();
+	void moveDown();
+	int getSelectedMenuIndex() const { return m_selectedMenuIndex; }
+	void resetMenuSelection() { m_selectedMenuIndex = 0; }
 
 private:
 	bool m_isPaused = false;
@@ -39,4 +45,8 @@ private:
 	void checkInputs();
 	void inputMove();
 	void updateGameSpeed();
+
+	//меню
+	int m_selectedMenuIndex = 0;
+	int m_maxMenuItems = 4;
 };

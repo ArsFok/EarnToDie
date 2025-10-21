@@ -3,8 +3,6 @@
 #include "Entity.h"
 #include "GameState.h"
 
-GameState gameState;
-
 
 EntityController::EntityController()
 {
@@ -44,6 +42,16 @@ void EntityController::inputMove()
         m_isFinal = !m_isFinal;
         inputCooldown.restart();
     }
+    if ((m_isPaused || m_isFinal) && cooldownTime > 0.2f) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+            moveUp();
+            inputCooldown.restart();
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+            moveDown();
+            inputCooldown.restart();
+        }
+    }
     bool shiftPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::RShift);
     if (shiftPressed != m_isShiftPressed) {
         m_isShiftPressed = shiftPressed;
@@ -63,22 +71,19 @@ void EntityController::inputMove()
     else {
         direction.x = -0;
     }
-    /*
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-        direction.y = -1;
-    }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-        direction.y = 1;
-    }
-    else {
-        direction.y = 0;
-    }
-    */
-    if (direction.x == 0 && direction.y == 0) {
+    if (direction.x == 0) {
         return;
     }
-
     entity->move(direction);
+}
+
+void EntityController::moveUp() {
+    m_selectedMenuIndex = std::max(0, m_selectedMenuIndex - 1);
+    std::cout << "Menu selection UP: " << m_selectedMenuIndex << std::endl;
+}
+void EntityController::moveDown() {
+    m_selectedMenuIndex = std::min(m_maxMenuItems - 1, m_selectedMenuIndex + 1);
+    std::cout << "Menu selection DOWN: " << m_selectedMenuIndex << std::endl;
 }
 void EntityController::updateGameSpeed() {
     if (m_isShiftPressed) {
