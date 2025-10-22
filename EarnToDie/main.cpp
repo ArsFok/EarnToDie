@@ -8,6 +8,7 @@
 #include "main.h"
 #include "GameState.h"
 #include "GameMenu.h"
+#include "PauseMenu.h"
 #include <vector>
 #include <ctime>
 #include <memory>
@@ -23,14 +24,18 @@ void createEnemies(float& enemySpawnTimer, const float enemySpawnRate, vector<un
 
         float speed = new_speed;
         int gold = 1;
-
-        Vector2f position(240 + rand() % (WINDOW_WIDTH - 485), -60);
-
-        unique_ptr<MovingObject> enemy;
-
         float size = 70;
-        enemy = make_unique<RectObject>(size, position, gold + 5);
-        enemies.push_back(make_unique<EnemyController>(move(enemy), speed));
+        const int spawnWidth = WINDOW_WIDTH - 485;
+        const int minX = 240;
+
+        Vector2f position(minX + rand() % spawnWidth, -60.f);
+
+        enemies.push_back(
+            make_unique<EnemyController>(
+                make_unique<RectObject>(size, position, gold),
+                new_speed
+            )
+        );
     }
 }
 void createSubject(float& enemySpawnTimer, const float enemySpawnRate, vector<unique_ptr<ObjectController>>& subjects, GameState& gameState, float new_speed) {
@@ -67,6 +72,7 @@ int main()
     EntityController controller;
 
     GameMenu menu(window, controller);
+    PauseMenu pauseMenu(window, controller);
 
     Texture backgroundTexture;
 
@@ -121,10 +127,18 @@ int main()
             }
             continue;
         }
+        if (controller.shouldReturnToMainMenu()) {
+            controller.resetReturnToMainMenu();
+            menu.setActive(true);
+            resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, distance);
+            continue;
+        }
         Event event;
         while (window.pollEvent(event)) {
-            if (event.type == Event::Closed)
+            if (event.type == Event::Closed) {
                 window.close();
+                break;
+            }
         }
         if (controller.isGamePaused() != gameState.isPaused()) {
             gameState.setPaused(controller.isGamePaused());
@@ -133,8 +147,8 @@ int main()
             resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, dist);
             controller.resetRestartFlag();
         }
-        if (controller.isGameFinal() && !gameState.isGameOver()) {
-            gameState.setGameOver();
+        if (!pauseMenu.isActive() && Keyboard::isKeyPressed(Keyboard::Escape)) {
+            controller.inputMove();
         }
         window.clear();
 
@@ -187,12 +201,11 @@ int main()
             for (auto it = enemies.begin(); it != enemies.end();) {
                 bool shouldRemove = (*it)->update();
 
-                if ((*it)->getEnemy()->checkCollision(controller.getEntity()->shape)) {
+                if (!shouldRemove && (*it)->getEnemy()->checkCollision(controller.getEntity()->shape)) {
                     gameState.addGold(10);
                     it = enemies.erase(it);
                     continue;
                 }
-
                 if (shouldRemove) {
                     it = enemies.erase(it);
                 }
@@ -219,6 +232,11 @@ int main()
         }
         for (const auto& subject : subjects) {
             subject->draw(window);
+        }
+
+        if (pauseMenu.isActive()) {
+            pauseMenu.update();
+            pauseMenu.render();
         }
 
         gameState.draw(window);

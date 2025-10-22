@@ -6,9 +6,9 @@
 
 using namespace sf;
 
-class GameState{
+class GameState {
 public:
-	enum class GameStatus{
+	enum class GameStatus {
 		Playing,
 		Paused,
 		GameOver
@@ -35,22 +35,12 @@ public:
 		goldText.setFillColor(Color::White);
 		goldText.setPosition(10, 100);
 
-		pauseText.setFont(font);
-		pauseText.setString("PAUSED\nPress ESC to continue");
-		pauseText.setCharacterSize(40);
-		pauseText.setFillColor(Color::Red);
-		pauseText.setStyle(Text::Bold);
-		pauseText.setPosition(WINDOW_WIDTH / 2 - 150, WINDOW_HEIGHT / 2 - 50);
-
 		gameOverText.setFont(font);
 		gameOverText.setString("GAME OVER\nPress ENTER to restart");
 		gameOverText.setCharacterSize(40);
 		gameOverText.setFillColor(Color::Red);
 		gameOverText.setStyle(Text::Bold);
 		gameOverText.setPosition(WINDOW_WIDTH / 2 - 180, WINDOW_HEIGHT / 2 - 50);
-
-		pauseOverlay.setSize(Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
-		pauseOverlay.setFillColor(Color(0, 0, 0, 150));
 
 		updateSpeedText();
 		updateFuelText();
@@ -70,7 +60,7 @@ public:
 	bool isGameOver() const { return m_gameStatus == GameStatus::GameOver; }
 	bool isPlaying() const { return m_gameStatus == GameStatus::Playing; }
 
-    void setPaused(bool paused) { m_gameStatus = paused ? GameStatus::Paused : GameStatus::Playing; }
+	void setPaused(bool paused) { m_gameStatus = paused ? GameStatus::Paused : GameStatus::Playing; }
 	void setGameOver() { m_gameStatus = GameStatus::GameOver; }
 	void restartGame() {
 		m_gameStatus = GameStatus::Playing;
@@ -104,7 +94,5 @@ private:
 	Text distText;
 	Text goldText;
 
-	Text pauseText;
 	Text gameOverText;
-	RectangleShape pauseOverlay;
 };

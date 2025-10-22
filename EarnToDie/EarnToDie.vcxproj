@@ -136,6 +136,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MovingObject.cpp" />
     <ClCompile Include="ObjectController.cpp" />
+    <ClCompile Include="PauseMenu.cpp" />
     <ClCompile Include="RectObject.cpp" />
     <ClCompile Include="StaticObject.cpp" />
   </ItemGroup>
@@ -151,6 +152,7 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="MovingObject.h" />
     <ClInclude Include="ObjectController.h" />
+    <ClInclude Include="PauseMenu.h" />
     <ClInclude Include="RectObject.h" />
     <ClInclude Include="StaticObject.h" />
   </ItemGroup>

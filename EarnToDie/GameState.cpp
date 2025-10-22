@@ -16,11 +16,7 @@ void GameState::draw(RenderWindow& window) {
 	window.draw(goldText);
 
 	if (m_gameStatus != GameStatus::Playing) {
-		window.draw(pauseOverlay);
-		if (m_gameStatus == GameStatus::Paused) {
-			window.draw(pauseText);
-		}
-		else if (m_gameStatus == GameStatus::GameOver) {
+		if (m_gameStatus == GameStatus::GameOver) {
 			window.draw(gameOverText);
 		}
 	}

@@ -37,6 +37,8 @@ private:
 	bool isMenuActive;
 	int menuResult;
 
+	int previousSelectedIndex = -1;
+
 	EntityController& entityController;
 	
 	void initializeMenuItems();

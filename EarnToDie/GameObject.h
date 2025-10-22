@@ -17,7 +17,7 @@ public:
 	// почему виртуальные функции
 	virtual void update(Vector2f moveDirection) = 0;
 	virtual void draw(RenderWindow& windows) const; //почему конст?
-	virtual virtual FloatRect getGlobalBounds() const = 0;
+	virtual FloatRect getGlobalBounds() const = 0;
 
 	bool checkCollision(const RectangleShape& player) const;
 	Vector2f getPosition();

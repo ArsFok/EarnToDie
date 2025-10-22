@@ -28,29 +28,27 @@ void EntityController::checkInputs()
 void EntityController::inputMove()
 {
     static Clock inputCooldown;
-    float cooldownTime = inputCooldown.getElapsedTime().asSeconds();
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) && cooldownTime > 0.2f) {
+    const Time cooldownTime = milliseconds(150);
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) && inputCooldown.getElapsedTime() > cooldownTime && !m_isFinal) {
         m_isPaused = !m_isPaused;
         inputCooldown.restart();
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && cooldownTime > 0.2f) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::BackSpace) && inputCooldown.getElapsedTime() > cooldownTime ) {
         m_shouldRestart = true;
         m_isFinal = false;
         inputCooldown.restart();
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::BackSpace) && cooldownTime > 0.2f) {
-        m_isFinal = !m_isFinal;
-        inputCooldown.restart();
-    }
-    if ((m_isPaused || m_isFinal) && cooldownTime > 0.2f) {
+    if ((m_isPaused || m_isFinal) && inputCooldown.getElapsedTime() > milliseconds(150)) {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-            moveUp();
+            movePauseMenuUp();
             inputCooldown.restart();
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-            moveDown();
+            movePauseMenuDown();
             inputCooldown.restart();
         }
+        return;
     }
     bool shiftPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::RShift);
     if (shiftPressed != m_isShiftPressed) {
@@ -77,14 +75,6 @@ void EntityController::inputMove()
     entity->move(direction);
 }
 
-void EntityController::moveUp() {
-    m_selectedMenuIndex = std::max(0, m_selectedMenuIndex - 1);
-    std::cout << "Menu selection UP: " << m_selectedMenuIndex << std::endl;
-}
-void EntityController::moveDown() {
-    m_selectedMenuIndex = std::min(m_maxMenuItems - 1, m_selectedMenuIndex + 1);
-    std::cout << "Menu selection DOWN: " << m_selectedMenuIndex << std::endl;
-}
 void EntityController::updateGameSpeed() {
     if (m_isShiftPressed) {
         m_gameSpeed = m_baseGameSpeed * 2.0f;
