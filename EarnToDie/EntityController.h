@@ -59,5 +59,5 @@ private:
 	int m_selectedMenuIndex = 0;
 	int m_selectedPauseMenuIndex = 0;
 	int m_maxPauseMenuItems = 5;
-	int m_maxMenuItems = 4;
+	int m_maxMenuItems = 5;
 };

@@ -106,3 +106,10 @@ void GameState::addGold(int amount) {
 int GameState::getTotalGold() const{
 	return totalGold;
 }
+void GameState::resetGold() {
+	playerGold = 0;
+	totalGold = 0;
+	updateGoldText();
+	saveGold();
+	cout << "Gold reset to 0" << endl;
+}

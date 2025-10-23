@@ -120,12 +120,17 @@ int main()
         if (menu.isActive()) {
             menu.update();
             menu.render();
+            menu.setTotalGold(gameState.getTotalGold());
 
             if (!menu.isActive() && menu.getMenuResult() == MenuItems::START_GAME) {
                 gameState.restartGame();
                 resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, distance);
             }
             continue;
+        }
+        if (menu.isResetGoldRequested()) {
+            gameState.resetGold();
+            menu.clearResetGoldRequest();
         }
         if (controller.shouldReturnToMainMenu()) {
             controller.resetReturnToMainMenu();

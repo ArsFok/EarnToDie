@@ -1,5 +1,4 @@
 #include "Entity.h"
-#include "const.h"
 #include <iostream>
 
 Entity::Entity()
@@ -7,11 +6,17 @@ Entity::Entity()
     size = 100.f;
     speed = sf::Vector2f(1.0f, 1.0f);
 
-    RectangleShape rect(Vector2f(BOX_HEIGHT, BOX_WIDTH));
-    rect.setOrigin(50.f, 50.f);
-    rect.setPosition(WINDOW_WIDTH/2, WINDOW_HEIGHT - 100);
-    rect.setFillColor(sf::Color::Yellow);
-    shape = rect;
+    if (!carTexture.loadFromFile("car.png")) {
+        std::cout << "Failed to load background image!" << std::endl;
+        shape.setFillColor(sf::Color::Green);
+    }
+    else {
+        shape.setTexture(&carTexture);
+    }
+
+    shape.setSize(Vector2f(BOX_HEIGHT, BOX_WIDTH));
+    shape.setOrigin(50.f, 50.f);
+    shape.setPosition(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 100);
 }
 
 

@@ -78,6 +78,7 @@ public:
 	void loadGold();
 	void saveGold();
 	void addGold(int amount);
+	void resetGold();
 	int getTotalGold() const;
 
 private:

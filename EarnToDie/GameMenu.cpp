@@ -1,4 +1,5 @@
 #include "GameMenu.h"
+#include "GameState.h"
 #include <iostream>
 #include "const.h"
 
@@ -10,8 +11,10 @@ GameMenu::GameMenu(RenderWindow& window, EntityController& controller):
 	normalColor(Color::White),
 	selectedColor(Color::Yellow),
 	titleColor(Color::Red),
+    totalGold(Color::Yellow),
     backgroundColor(sf::Color(30, 30, 60, 200)),
     isMenuActive(true),
+    resetGoldRequested(false),
     menuResult(MenuItems::START_GAME),
     previousSelectedIndex(-1) {
 
@@ -43,6 +46,7 @@ GameMenu::GameMenu(RenderWindow& window, EntityController& controller):
 void GameMenu::initializeMenuItems() {
 	vector<string> menuTexts = {
 		"Start Game",
+        "New Game",
 		"Settings",
 		"Shop",
 		"Exit"
@@ -201,6 +205,16 @@ void GameMenu::render() {
 
     gameWindow.draw(controlsHint);
 
+    //Вывод всего золота
+    Text totalGolds;
+    totalGolds.setFont(font);
+    totalGolds.setString("TotalGold:" + std::to_string(totalGoldValue));
+    totalGolds.setCharacterSize(24);
+    totalGolds.setFillColor(totalGold);
+    totalGolds.setPosition(10, 10);
+
+    gameWindow.draw(totalGolds);
+
     // Текущий выбор
     Text selectionHint;
     selectionHint.setFont(font);
@@ -247,7 +261,11 @@ void GameMenu::handleMenuSelection(int selectedIndex) {
         std::cout << "ACTION: Starting game..." << std::endl;
         isMenuActive = false;
         break;
-
+    case MenuItems::NEW_GAME:
+        std::cout << "ACTION: New starting game..." << std::endl;
+        isMenuActive = false;
+        resetGoldRequested = true;
+        break;
     case MenuItems::SETTINGS:
         std::cout << "Settings selected" << std::endl;
         // Здесь можно открыть окно настроек

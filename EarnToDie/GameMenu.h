@@ -17,6 +17,11 @@ public:
 	int getMenuResult() const { return menuResult; }
 	void resetMenu();
 
+	bool isResetGoldRequested() const { return resetGoldRequested; }
+	void clearResetGoldRequest() { resetGoldRequested = false; }
+	void setTotalGold(int gold) { totalGoldValue = gold; }
+	void resetGold(){ resetGoldRequested = true; }
+
 	void update();
 	void render();
 	void handleEvents();
@@ -33,9 +38,12 @@ private:
 	Color selectedColor;
 	Color titleColor;
 	Color backgroundColor;
+	Color totalGold;
 
 	bool isMenuActive;
+	bool resetGoldRequested;
 	int menuResult;
+	int totalGoldValue;
 
 	int previousSelectedIndex = -1;
 
@@ -48,8 +56,9 @@ private:
 
 namespace MenuItems {
 	const int START_GAME = 0;
-	const int SETTINGS = 1;
-	const int SHOP = 2;
-	const int EXIT = 3;
+	const int NEW_GAME = 1;
+	const int SETTINGS = 2;
+	const int SHOP = 3;
+	const int EXIT = 4;
 }
 
