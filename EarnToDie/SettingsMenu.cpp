@@ -1,13 +1,15 @@
-#include "SettingsMenu.h"
+п»ї#include "SettingsMenu.h"
+#include "MenuController.h"
 #include <iostream>
 #include <fstream> 
 #include <sstream> 
 #include <filesystem>
 #include "const.h"
 
-SettingsMenu::SettingsMenu(sf::RenderWindow& window)
+SettingsMenu::SettingsMenu(sf::RenderWindow& window, AudioManager& audioManager)
     : gameWindow(window)
-    , menuController(4) // 4 пункта меню: Music, Sound, Save, Back
+    , audioManager(audioManager)
+    , menuController(4) // 4 РїСѓРЅРєС‚Р° РјРµРЅСЋ: Music, Sound, Save, Back
     , normalColor(sf::Color::White)
     , selectedColor(sf::Color::Yellow)
     , buttonColor(sf::Color(70, 70, 70, 200))
@@ -56,29 +58,29 @@ void SettingsMenu::initializeMenuItems() {
     float startY = WINDOW_HEIGHT / 2 - (menuTexts.size() * (BUTTON_HEIGHT_LARGE + BUTTON_PADDING_LARGE)) / 2;
 
     for (size_t i = 0; i < menuTexts.size(); ++i) {
-        // Текст пункта меню
+        // РўРµРєСЃС‚ РїСѓРЅРєС‚Р° РјРµРЅСЋ
         sf::Text text;
         text.setFont(font);
         text.setString(menuTexts[i]);
-        text.setCharacterSize(28); // Немного уменьшили размер шрифта
+        text.setCharacterSize(28); // РќРµРјРЅРѕРіРѕ СѓРјРµРЅСЊС€РёР»Рё СЂР°Р·РјРµСЂ С€СЂРёС„С‚Р°
         text.setFillColor(normalColor);
 
         sf::FloatRect textRect = text.getLocalBounds();
         text.setOrigin(textRect.left + textRect.width / 2.0f,
             textRect.top + textRect.height / 2.0f);
-        // Сдвигаем текст левее для места под значения
+        // РЎРґРІРёРіР°РµРј С‚РµРєСЃС‚ Р»РµРІРµРµ РґР»СЏ РјРµСЃС‚Р° РїРѕРґ Р·РЅР°С‡РµРЅРёСЏ
         text.setPosition(WINDOW_WIDTH / 2.0f - 150, startY + i * (BUTTON_HEIGHT_LARGE + BUTTON_PADDING_LARGE) + BUTTON_HEIGHT_LARGE / 2);
 
         menuSettingsItems.push_back(text);
 
-        // Текст значения настройки
+        // РўРµРєСЃС‚ Р·РЅР°С‡РµРЅРёСЏ РЅР°СЃС‚СЂРѕР№РєРё
         sf::Text valueText;
         valueText.setFont(font);
         valueText.setCharacterSize(25);
         valueText.setFillColor(valueColor);
 
         valueText.setOrigin(0, valueText.getLocalBounds().height / 2.0f);
-        // Сдвигаем значения правее
+        // РЎРґРІРёРіР°РµРј Р·РЅР°С‡РµРЅРёСЏ РїСЂР°РІРµРµ
         valueText.setPosition(WINDOW_WIDTH / 2.0f + 80, startY + i * (BUTTON_HEIGHT_LARGE + BUTTON_PADDING_LARGE) + BUTTON_HEIGHT_LARGE / 2);
 
         valueTexts.push_back(valueText);
@@ -106,14 +108,14 @@ void SettingsMenu::initializeButtons() {
 }
 
 void SettingsMenu::updateValueTexts() {
-    // Проверяем, что векторы имеют достаточный размер
+    // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РІРµРєС‚РѕСЂС‹ РёРјРµСЋС‚ РґРѕСЃС‚Р°С‚РѕС‡РЅС‹Р№ СЂР°Р·РјРµСЂ
     if (valueTexts.size() > SettingsMenuItems::MUSIC_VOLUME) {
         valueTexts[SettingsMenuItems::MUSIC_VOLUME].setString(std::to_string(static_cast<int>(musicVolume)) + "%");
     }
     if (valueTexts.size() > SettingsMenuItems::SOUND_VOLUME) {
         valueTexts[SettingsMenuItems::SOUND_VOLUME].setString(std::to_string(static_cast<int>(soundVolume)) + "%");
     }
-    // Для SAVE_SETTINGS и BACK оставляем пустые строки
+    // Р”Р»СЏ SAVE_SETTINGS Рё BACK РѕСЃС‚Р°РІР»СЏРµРј РїСѓСЃС‚С‹Рµ СЃС‚СЂРѕРєРё
     if (valueTexts.size() > SettingsMenuItems::SAVE_SETTINGS) {
         valueTexts[SettingsMenuItems::SAVE_SETTINGS].setString("");
     }
@@ -252,9 +254,9 @@ void SettingsMenu::handleContinuousInput() {
     static bool keyProcessed = false;
     static bool wasKeyPressed = false;
 
-    // Настройки задержки
-    const float initialDelay = 500.0f;   // Первое нажатие - 0.5 секунды
-    const float repeatDelay = 150.0f;    // Повторения - 0.15 секунды
+    // РќР°СЃС‚СЂРѕР№РєРё Р·Р°РґРµСЂР¶РєРё
+    const float initialDelay = 500.0f;   // РџРµСЂРІРѕРµ РЅР°Р¶Р°С‚РёРµ - 0.5 СЃРµРєСѓРЅРґС‹
+    const float repeatDelay = 150.0f;    // РџРѕРІС‚РѕСЂРµРЅРёСЏ - 0.15 СЃРµРєСѓРЅРґС‹
 
     bool leftPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Left) ||
         sf::Keyboard::isKeyPressed(sf::Keyboard::A) ||
@@ -264,7 +266,7 @@ void SettingsMenu::handleContinuousInput() {
         sf::Keyboard::isKeyPressed(sf::Keyboard::D) ||
         sf::Keyboard::isKeyPressed(sf::Keyboard::Num9);
 
-    // Если нажаты обе - игнорируем
+    // Р•СЃР»Рё РЅР°Р¶Р°С‚С‹ РѕР±Рµ - РёРіРЅРѕСЂРёСЂСѓРµРј
     if (leftPressed && rightPressed) {
         keyProcessed = false;
         wasKeyPressed = false;
@@ -274,9 +276,9 @@ void SettingsMenu::handleContinuousInput() {
     float elapsedTime = keyTimer.getElapsedTime().asMilliseconds();
     bool anyKeyPressed = leftPressed || rightPressed;
 
-    // Если клавиша только что нажата
+    // Р•СЃР»Рё РєР»Р°РІРёС€Р° С‚РѕР»СЊРєРѕ С‡С‚Рѕ РЅР°Р¶Р°С‚Р°
     if (anyKeyPressed && !wasKeyPressed) {
-        // Немедленно обрабатываем первое нажатие
+        // РќРµРјРµРґР»РµРЅРЅРѕ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј РїРµСЂРІРѕРµ РЅР°Р¶Р°С‚РёРµ
         if (leftPressed) adjustSetting(-1);
         if (rightPressed) adjustSetting(1);
 
@@ -284,9 +286,9 @@ void SettingsMenu::handleContinuousInput() {
         keyProcessed = true;
         wasKeyPressed = true;
     }
-    // Если клавиша удерживается
+    // Р•СЃР»Рё РєР»Р°РІРёС€Р° СѓРґРµСЂР¶РёРІР°РµС‚СЃСЏ
     else if (anyKeyPressed && wasKeyPressed) {
-        // Обрабатываем только если прошло достаточно времени
+        // РћР±СЂР°Р±Р°С‚С‹РІР°РµРј С‚РѕР»СЊРєРѕ РµСЃР»Рё РїСЂРѕС€Р»Рѕ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РІСЂРµРјРµРЅРё
         if (elapsedTime > (keyProcessed ? repeatDelay : initialDelay)) {
             if (leftPressed) adjustSetting(-1);
             if (rightPressed) adjustSetting(1);
@@ -295,7 +297,7 @@ void SettingsMenu::handleContinuousInput() {
             keyProcessed = true;
         }
     }
-    // Если клавиша отпущена
+    // Р•СЃР»Рё РєР»Р°РІРёС€Р° РѕС‚РїСѓС‰РµРЅР°
     else {
         keyProcessed = false;
         wasKeyPressed = false;
@@ -309,10 +311,11 @@ void SettingsMenu::adjustSetting(int direction) {
     case SettingsMenuItems::MUSIC_VOLUME:
         musicVolume = std::max(0.0f, std::min(100.0f, musicVolume + direction * 5.0f));
         std::cout << "Music volume: " << musicVolume << "%" << std::endl;
+        audioManager.setMusicVolume(musicVolume);
         updateValueTexts();
         saveSettings();
 
-        // Визуальная обратная связь - мигание текста
+        // Р’РёР·СѓР°Р»СЊРЅР°СЏ РѕР±СЂР°С‚РЅР°СЏ СЃРІСЏР·СЊ - РјРёРіР°РЅРёРµ С‚РµРєСЃС‚Р°
         if (menuSettingsItems.size() > selectedIndex) {
             menuSettingsItems[selectedIndex].setFillColor(sf::Color::Green);
         }
@@ -321,10 +324,11 @@ void SettingsMenu::adjustSetting(int direction) {
     case SettingsMenuItems::SOUND_VOLUME:
         soundVolume = std::max(0.0f, std::min(100.0f, soundVolume + direction * 5.0f));
         std::cout << "Sound volume: " << soundVolume << "%" << std::endl;
+        audioManager.setSoundVolume(soundVolume);
         updateValueTexts();
         saveSettings();
 
-        // Визуальная обратная связь - мигание текста
+        // Р’РёР·СѓР°Р»СЊРЅР°СЏ РѕР±СЂР°С‚РЅР°СЏ СЃРІСЏР·СЊ - РјРёРіР°РЅРёРµ С‚РµРєСЃС‚Р°
         if (menuSettingsItems.size() > selectedIndex) {
             menuSettingsItems[selectedIndex].setFillColor(sf::Color::Green);
         }
@@ -388,9 +392,8 @@ void SettingsMenu::handleMenuSelection(int selectedIndex) {
         break;
     case SettingsMenuItems::SAVE_SETTINGS:
         saveSettings();
-        // Временно меняем текст для обратной связи
+        audioManager.playSound("click"); // в†ђ РўР•РЎРў Р·РІСѓРєР°
         menuSettingsItems[selectedIndex].setString("Settings Saved!");
-        // Через 2 секунды вернём оригинальный текст (можно добавить таймер)
         break;
     case SettingsMenuItems::BACK:
         std::cout << "ACTION: Returning to previous menu..." << std::endl;
@@ -404,7 +407,7 @@ void SettingsMenu::handleMenuSelection(int selectedIndex) {
 void SettingsMenu::render() {
     gameWindow.clear(sf::Color(30, 30, 60, 200));
 
-    // Заголовок настроек
+    // Р—Р°РіРѕР»РѕРІРѕРє РЅР°СЃС‚СЂРѕРµРє
     sf::Text settingsTitle;
     settingsTitle.setFont(font);
     settingsTitle.setString("SETTINGS");
@@ -418,22 +421,22 @@ void SettingsMenu::render() {
     settingsTitle.setPosition(WINDOW_WIDTH / 2.0f, 150);
     gameWindow.draw(settingsTitle);
 
-    // Рисуем кнопки
+    // Р РёСЃСѓРµРј РєРЅРѕРїРєРё
     for (const auto& button : buttons) {
         gameWindow.draw(button);
     }
 
-    // Рисуем текст пунктов меню
+    // Р РёСЃСѓРµРј С‚РµРєСЃС‚ РїСѓРЅРєС‚РѕРІ РјРµРЅСЋ
     for (const auto& text : menuSettingsItems) {
         gameWindow.draw(text);
     }
 
-    // Рисуем тексты значений
+    // Р РёСЃСѓРµРј С‚РµРєСЃС‚С‹ Р·РЅР°С‡РµРЅРёР№
     for (const auto& valueText : valueTexts) {
         gameWindow.draw(valueText);
     }
 
-    // Подсказки управления
+    // РџРѕРґСЃРєР°Р·РєРё СѓРїСЂР°РІР»РµРЅРёСЏ
     sf::Text controlsHint;
     controlsHint.setFont(font);
     controlsHint.setString("ARROWS/A/D/0/9: Adjust volume  |  PAGE UP/DOWN: Quick adjust  |  HOME/END: Min/Max  |  ENTER: Confirm  |  ESC: Back");
@@ -477,11 +480,11 @@ void SettingsMenu::loadSettings() {
         bool loadedSound = false;
 
         while (std::getline(file, line)) {
-            // Убираем пробелы в начале и конце строки
+            // РЈР±РёСЂР°РµРј РїСЂРѕР±РµР»С‹ РІ РЅР°С‡Р°Р»Рµ Рё РєРѕРЅС†Рµ СЃС‚СЂРѕРєРё
             line.erase(0, line.find_first_not_of(" \t"));
             line.erase(line.find_last_not_of(" \t") + 1);
 
-            // Пропускаем пустые строки и комментарии
+            // РџСЂРѕРїСѓСЃРєР°РµРј РїСѓСЃС‚С‹Рµ СЃС‚СЂРѕРєРё Рё РєРѕРјРјРµРЅС‚Р°СЂРёРё
             if (line.empty() || line[0] == '#') continue;
 
             size_t delimiterPos = line.find('=');
@@ -489,7 +492,7 @@ void SettingsMenu::loadSettings() {
                 std::string key = line.substr(0, delimiterPos);
                 std::string value = line.substr(delimiterPos + 1);
 
-                // Убираем пробелы вокруг ключа и значения
+                // РЈР±РёСЂР°РµРј РїСЂРѕР±РµР»С‹ РІРѕРєСЂСѓРі РєР»СЋС‡Р° Рё Р·РЅР°С‡РµРЅРёСЏ
                 key.erase(0, key.find_first_not_of(" \t"));
                 key.erase(key.find_last_not_of(" \t") + 1);
                 value.erase(0, value.find_first_not_of(" \t"));
@@ -531,6 +534,12 @@ void SettingsMenu::loadSettings() {
         std::cout << "Attempting to create settings file..." << std::endl;
         saveSettings();
     }
+
+    audioManager.setMusicVolume(musicVolume);
+    audioManager.setSoundVolume(soundVolume);
+
+    std::cout << "Applied settings to AudioManager - Music: " << musicVolume
+        << "%, Sound: " << soundVolume << "%" << std::endl;
 
     updateValueTexts();
 }

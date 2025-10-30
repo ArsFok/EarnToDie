@@ -109,12 +109,20 @@ int main()
 
     GameState gameState;
     EntityController controller;
+    AudioManager audioManager;
 
-    GameMenu menu(window);
-    PauseMenu pauseMenu(window);
-    SettingsMenu settingsMenu(window);
+    GameMenu menu(window, audioManager);
+    PauseMenu pauseMenu(window, audioManager);
+    SettingsMenu settingsMenu(window, audioManager);
 
     Texture backgroundTexture;
+
+    audioManager.loadMusic("background", "assets/music/background.ogg");
+    audioManager.loadSound("click", "assets/sounds/click.wav");
+    audioManager.loadSound("collision", "assets/sounds/collision.wav");
+    audioManager.loadSound("coin", "assets/sounds/coin.wav");
+
+    audioManager.playMusic("background");
 
     if (!backgroundTexture.loadFromFile("background.jpg")) {
         cout << "Failed to load background image!" << endl;

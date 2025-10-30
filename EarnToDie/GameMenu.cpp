@@ -5,10 +5,10 @@
 
 using namespace sf;
 
-GameMenu::GameMenu(RenderWindow& window) :
+GameMenu::GameMenu(RenderWindow& window, AudioManager& audioManager) :
     gameWindow(window),
     menuController(5),
-    settingsMenu(window),
+    settingsMenu(window, audioManager),
     normalColor(Color::White),
     selectedColor(Color::Yellow),
     titleColor(Color::Red),

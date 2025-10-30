@@ -81,15 +81,19 @@ void AudioManager::stopMusic() {
 }
 
 void AudioManager::setSoundVolume(float volume) {
+    std::cout << "=== AudioManager: Setting sound volume to " << volume << " ===" << std::endl;
     soundVolume = volume;
     for (auto& sound : sounds) {
         sound.second.setVolume(soundVolume);
+        std::cout << "Sound '" << sound.first << "' volume: " << sound.second.getVolume() << std::endl;
     }
 }
 
 void AudioManager::setMusicVolume(float volume) {
+    std::cout << "=== AudioManager: Setting music volume to " << volume << " ===" << std::endl;
     musicVolume = volume;
     if (currentMusic) {
         currentMusic->setVolume(musicVolume);
+        std::cout << "Current music volume: " << currentMusic->getVolume() << std::endl;
     }
 }

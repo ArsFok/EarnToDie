@@ -10,7 +10,7 @@ using namespace std;
 
 class GameMenu {
 public:
-    GameMenu(RenderWindow& gameWindow); 
+    GameMenu(RenderWindow& gameWindow, AudioManager& audioManager);
     ~GameMenu() = default;
 
     bool isActive() const { return isMenuActive; }

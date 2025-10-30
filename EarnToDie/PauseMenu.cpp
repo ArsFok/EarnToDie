@@ -2,10 +2,10 @@
 #include <iostream>
 #include "const.h"
 
-PauseMenu::PauseMenu(sf::RenderWindow& window)
+PauseMenu::PauseMenu(sf::RenderWindow& window, AudioManager& audioManager)
     : gameWindow(window)
     , menuController(5)
-    , settingsMenu(window)
+    , settingsMenu(window, audioManager)
     , normalColor(sf::Color::White)
     , selectedColor(sf::Color::Yellow)
     , buttonColor(sf::Color(70, 70, 70, 200))

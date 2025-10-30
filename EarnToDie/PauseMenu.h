@@ -8,7 +8,7 @@
 
 class PauseMenu {
 public:
-    PauseMenu(sf::RenderWindow& gameWindow);
+    PauseMenu(sf::RenderWindow& gameWindow, AudioManager& audioManager);
     ~PauseMenu() = default;
 
     void update();

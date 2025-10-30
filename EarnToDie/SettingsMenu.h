@@ -1,5 +1,6 @@
 #pragma once
 #include "MenuController.h"
+#include "AudioManager.h"
 #include "const.h"
 #include <SFML/Graphics.hpp>
 #include <vector>
@@ -8,7 +9,7 @@
 
 class SettingsMenu {
 public:
-    SettingsMenu(sf::RenderWindow& gameWindow);
+    SettingsMenu(sf::RenderWindow& gameWindow, AudioManager& audioManager);
     ~SettingsMenu() = default;
 
     void update();
@@ -38,6 +39,7 @@ private:
     std::vector<sf::Text> valueTexts;
 
     MenuController menuController;
+    AudioManager& audioManager;
 
     int settingsMenuResult = -1;
     int previousSelectedIndex = -1;
