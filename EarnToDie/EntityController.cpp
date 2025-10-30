@@ -30,33 +30,15 @@ void EntityController::inputMove()
     static Clock inputCooldown;
     const Time cooldownTime = milliseconds(150);
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) && inputCooldown.getElapsedTime() > cooldownTime && !m_isFinal) {
-        m_isPaused = !m_isPaused;
-        inputCooldown.restart();
-    }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::BackSpace) && inputCooldown.getElapsedTime() > cooldownTime ) {
         m_shouldRestart = true;
         m_isFinal = false;
         inputCooldown.restart();
     }
-    if ((m_isPaused || m_isFinal) && inputCooldown.getElapsedTime() > milliseconds(150)) {
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-            movePauseMenuUp();
-            inputCooldown.restart();
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-            movePauseMenuDown();
-            inputCooldown.restart();
-        }
-        return;
-    }
     bool shiftPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::RShift);
     if (shiftPressed != m_isShiftPressed) {
         m_isShiftPressed = shiftPressed;
         updateGameSpeed();
-    }
-    if (m_isPaused || m_isFinal) {
-        return;
     }
     Vector2f direction;
 

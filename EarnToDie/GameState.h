@@ -36,7 +36,7 @@ public:
 		goldText.setPosition(10, 100);
 
 		gameOverText.setFont(font);
-		gameOverText.setString("GAME OVER\nPress ENTER to restart");
+		gameOverText.setString("GAME OVER\nPress BACKSPACE to restart");
 		gameOverText.setCharacterSize(40);
 		gameOverText.setFillColor(Color::Red);
 		gameOverText.setStyle(Text::Bold);

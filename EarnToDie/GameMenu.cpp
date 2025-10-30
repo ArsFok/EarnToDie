@@ -5,12 +5,13 @@
 
 using namespace sf;
 
-GameMenu::GameMenu(RenderWindow& window, EntityController& controller):
+GameMenu::GameMenu(RenderWindow& window) :
     gameWindow(window),
-    entityController(controller),
-	normalColor(Color::White),
-	selectedColor(Color::Yellow),
-	titleColor(Color::Red),
+    menuController(5),
+    settingsMenu(window),
+    normalColor(Color::White),
+    selectedColor(Color::Yellow),
+    titleColor(Color::Red),
     totalGold(Color::Yellow),
     backgroundColor(sf::Color(30, 30, 60, 200)),
     isMenuActive(true),
@@ -18,12 +19,12 @@ GameMenu::GameMenu(RenderWindow& window, EntityController& controller):
     menuResult(MenuItems::START_GAME),
     previousSelectedIndex(-1) {
 
-	if (!backgroundTexture.loadFromFile("menu_background.jpg")) {
-		backgroundTexture.create(WINDOW_WIDTH, WINDOW_HEIGHT);
-	}
-	background.setTexture(backgroundTexture);
+    if (!backgroundTexture.loadFromFile("menu_background.jpg")) {
+        backgroundTexture.create(WINDOW_WIDTH, WINDOW_HEIGHT);
+    }
+    background.setTexture(backgroundTexture);
 
-	if (!font.loadFromFile("arial.ttf")) {
+    if (!font.loadFromFile("arial.ttf")) {
         std::vector<std::string> fallbackFonts = {
             "C:/Windows/Fonts/arial.ttf",
             "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
@@ -39,35 +40,42 @@ GameMenu::GameMenu(RenderWindow& window, EntityController& controller):
         if (!fontLoaded) {
             throw std::runtime_error("Critical: Cannot load any font for menu!");
         }
-	}
-	initializeMenuItems();
+    }
+    initializeMenuItems();
 }
 
 void GameMenu::initializeMenuItems() {
-	vector<string> menuTexts = {
-		"Start Game",
+    vector<string> menuTexts = {
+        "Start Game",
         "New Game",
-		"Settings",
-		"Shop",
-		"Exit"
-	};
-	for (size_t i = 0; i < menuTexts.size(); ++i) {
-		Text text;
-		text.setFont(font);
-		text.setString(menuTexts[i]);
-		text.setCharacterSize(40);
-		text.setFillColor(normalColor);
+        "Settings",
+        "Shop",
+        "Exit"
+    };
 
-		FloatRect textRect = text.getGlobalBounds();
-		text.setOrigin(textRect.left + textRect.width / 2.0f,
-					  textRect.top + textRect.height / 2.0f);
-		text.setPosition(WINDOW_WIDTH / 2.0f, 250 + i * 70);
+    menuController.setMenuItemsCount(menuTexts.size());
 
-		menuItems.push_back(text);
-	}
+    for (size_t i = 0; i < menuTexts.size(); ++i) {
+        Text text;
+        text.setFont(font);
+        text.setString(menuTexts[i]);
+        text.setCharacterSize(40);
+        text.setFillColor(normalColor);
+
+        FloatRect textRect = text.getGlobalBounds();
+        text.setOrigin(textRect.left + textRect.width / 2.0f,
+            textRect.top + textRect.height / 2.0f);
+        text.setPosition(WINDOW_WIDTH / 2.0f, 250 + i * 70);
+
+        menuItems.push_back(text);
+    }
 }
 
 void GameMenu::update() {
+    if (settingsMenu.isActive()) {
+        settingsMenu.update();
+        return;
+    }
     handleEvents();
     updateMenuVisuals();
 }
@@ -83,34 +91,38 @@ void GameMenu::handleEvents() {
         case Event::KeyPressed:
             switch (event.key.code) {
             case Keyboard::Up:
-                if (!entityController.isGamePaused() && !entityController.isGameFinal()) {
-                    int before = entityController.getSelectedMenuIndex();
-                    entityController.moveMainMenuUp();
-                    int after = entityController.getSelectedMenuIndex();
+            {
+                int before = menuController.getSelectedIndex();
+                menuController.moveUp();
+                int after = menuController.getSelectedIndex();
 
-                    // Выводим только если индекс действительно изменился
-                    if (before != after) {
-                        std::cout << "UP: " << before << " -> " << after << std::endl;
-                    }
-                    updateMenuVisuals();
+                if (before != after) {
+                    std::cout << "UP: " << before << " -> " << after << std::endl;
                 }
-                break;
+                updateMenuVisuals();
+            }
+            break;
             case Keyboard::Down:
-                if (!entityController.isGamePaused() && !entityController.isGameFinal()) {
-                    int before = entityController.getSelectedMenuIndex();
-                    entityController.moveMainMenuDown();
-                    int after = entityController.getSelectedMenuIndex();
+            {
+                int before = menuController.getSelectedIndex();
+                menuController.moveDown();
+                int after = menuController.getSelectedIndex();
 
-                    if (before != after) {
-                        std::cout << "DOWN: " << before << " -> " << after << std::endl;
-                    }
-                    updateMenuVisuals();
+                if (before != after) {
+                    std::cout << "DOWN: " << before << " -> " << after << std::endl;
                 }
-                break;
+                updateMenuVisuals();
+            }
+            break;
             case Keyboard::Return:
             case Keyboard::Space:
-                handleMenuSelection(entityController.getSelectedMenuIndex());
-                break;
+            {
+                int selectedIndex = menuController.getSelectedIndex();
+                if (menuController.isValidIndex()) {
+                    handleMenuSelection(selectedIndex);
+                }
+            }
+            break;
             case Keyboard::Escape:
                 gameWindow.close();
                 break;
@@ -125,13 +137,8 @@ void GameMenu::handleEvents() {
                 FloatRect bounds = menuItems[i].getGlobalBounds();
                 if (bounds.contains(static_cast<float>(event.mouseMove.x),
                     static_cast<float>(event.mouseMove.y))) {
-                    if (!entityController.isGamePaused() && !entityController.isGameFinal()) {
-                        entityController.resetMenuSelection();
-                        for (int j = 0; j < i; j++) {
-                            entityController.moveMainMenuDown();
-                        }
-                        updateMenuVisuals();
-                    }
+                    menuController.setSelectedIndex(i);
+                    updateMenuVisuals();
                 }
             }
             break;
@@ -155,6 +162,11 @@ void GameMenu::handleEvents() {
 }
 
 void GameMenu::render() {
+    if (settingsMenu.isActive()) {
+        settingsMenu.render();
+        gameWindow.display();
+        return;
+    }
     gameWindow.clear(backgroundColor);
 
     RectangleShape backgroundOverlay(Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
@@ -218,7 +230,7 @@ void GameMenu::render() {
     // Текущий выбор
     Text selectionHint;
     selectionHint.setFont(font);
-    selectionHint.setString("Selected: " + menuItems[entityController.getSelectedMenuIndex()].getString());
+    selectionHint.setString("Selected: " + menuItems[menuController.getSelectedIndex()].getString());
     selectionHint.setCharacterSize(16);
     selectionHint.setFillColor(Color(100, 200, 100));
     selectionHint.setPosition(20, WINDOW_HEIGHT - 70);
@@ -229,29 +241,31 @@ void GameMenu::render() {
 }
 
 void GameMenu::updateMenuVisuals() {
-    int selectedIndex = entityController.getSelectedMenuIndex();
+    int selectedIndex = menuController.getSelectedIndex(); 
+
     // Выводим только если индекс изменился
     if (selectedIndex != previousSelectedIndex) {
         std::cout << "=== SELECTION CHANGED ===" << std::endl;
         std::cout << "Previous: " << previousSelectedIndex << " -> New: " << selectedIndex << std::endl;
         std::cout << "Selected item: " << menuItems[selectedIndex].getString().toAnsiString() << std::endl;
-        previousSelectedIndex = selectedIndex; // Обновляем предыдущее значение
+        previousSelectedIndex = selectedIndex;
     }
 
     for (size_t i = 0; i < menuItems.size(); ++i) {
         if (i == selectedIndex) {
             menuItems[i].setFillColor(selectedColor);
             menuItems[i].setStyle(sf::Text::Bold);
+            menuItems[i].setScale(1.05f, 1.05f);
         }
         else {
             menuItems[i].setFillColor(normalColor);
             menuItems[i].setStyle(sf::Text::Regular);
+            menuItems[i].setScale(1.0f, 1.0f);
         }
     }
 }
 
 void GameMenu::handleMenuSelection(int selectedIndex) {
-    //std::cout << "Menu item selected: " << selectedIndex << std::endl;
     std::cout << "=== MENU SELECTION ===" << std::endl;
     std::cout << "Selected index: " << selectedIndex << std::endl;
     std::cout << "Menu item: " << menuItems[selectedIndex].getString().toAnsiString() << std::endl;
@@ -268,7 +282,7 @@ void GameMenu::handleMenuSelection(int selectedIndex) {
         break;
     case MenuItems::SETTINGS:
         std::cout << "Settings selected" << std::endl;
-        // Здесь можно открыть окно настроек
+        settingsMenu.setActive(true);
         break;
 
     case MenuItems::SHOP:
@@ -285,8 +299,9 @@ void GameMenu::handleMenuSelection(int selectedIndex) {
         break;
     }
 }
+
 void GameMenu::resetMenu() {
     isMenuActive = true;
-    entityController.resetMenuSelection();
+    menuController.resetSelection();
     updateMenuVisuals();
 }

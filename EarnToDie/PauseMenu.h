@@ -1,44 +1,58 @@
 #pragma once
-#include "EntityController.h"
+#include "MenuController.h"
+#include "SettingsMenu.h"
 #include "const.h"
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <string>
 
-class PauseMenu{
+class PauseMenu {
 public:
-	PauseMenu(RenderWindow& gameWindow, EntityController& controller);
-	~PauseMenu() = default;
+    PauseMenu(sf::RenderWindow& gameWindow);
+    ~PauseMenu() = default;
 
-	void update();
-	void render();
-	void handleEvents();
+    void update();
+    void render();
+    void handleEvents();
+    void updateMenuVisuals();
 
-	bool isActive() const { return entityController.isGamePaused(); }
-	int getSelectedAction() const { return entityController.getSelectedMenuIndex(); }
-	int getPauseMenuResult() { return pauseMenuResult; }
+    sf::RenderWindow& getWindow() { return gameWindow; }
+    void setActive(bool active);
+    bool isActive() const { return isMenuActive; }
+
+    int getSelectedAction() const { return menuController.getSelectedIndex(); }
+
+    int getPauseMenuResult() { return pauseMenuResult; }
+    void resetMenuResult() { pauseMenuResult = -1; }
+
+    void setGamePaused(bool paused) { gamePaused = paused; }
+    bool isGamePaused() const { return gamePaused; }
+
+    bool isSettingsActive() const { return settingsMenu.isActive(); }
+    SettingsMenu& getSettingsMenu() { return settingsMenu; }
 
 private:
-	RenderWindow& gameWindow;
-	Font font;
-	std::vector<Text> menuPauseItems;
-	std::vector<RectangleShape> buttons;
+    sf::RenderWindow& gameWindow;
+    sf::Font font;
+    std::vector<sf::Text> menuPauseItems;
+    std::vector<sf::RectangleShape> buttons;
 
-	EntityController& entityController;
+    MenuController menuController;
+    SettingsMenu settingsMenu;
 
-	int pauseMenuResult;
-	int previousSelectedIndex = -1;
+    int pauseMenuResult = -1;
+    int previousSelectedIndex = -1;
+    bool isMenuActive = false;
+    bool gamePaused = false;
 
-	Color normalColor;
-	Color selectedColor;
-	Color titleColor;
-	Color buttonColor;
-	Color buttonOutlineColor;
+    sf::Color normalColor;
+    sf::Color selectedColor;
+    sf::Color buttonColor;
+    sf::Color buttonOutlineColor;
 
-	void initializeMenuItems();
-	void initializeButtons();
-	void updateMenuVisuals();
-	void handleMenuSelection(int selectedIndex);
+    void initializeMenuItems();
+    void initializeButtons();
+    void handleMenuSelection(int selectedIndex);
 };
 namespace PauseMenuItems {
 	const int RESUME = 0;

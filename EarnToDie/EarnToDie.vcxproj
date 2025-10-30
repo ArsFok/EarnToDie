@@ -126,6 +126,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioManager.cpp" />
     <ClCompile Include="CircleObject.cpp" />
     <ClCompile Include="EnemyController.cpp" />
     <ClCompile Include="Entity.cpp" />
@@ -134,13 +135,16 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MenuController.cpp" />
     <ClCompile Include="MovingObject.cpp" />
     <ClCompile Include="ObjectController.cpp" />
     <ClCompile Include="PauseMenu.cpp" />
     <ClCompile Include="RectObject.cpp" />
+    <ClCompile Include="SettingsMenu.cpp" />
     <ClCompile Include="StaticObject.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AudioManager.h" />
     <ClInclude Include="CircleObject.h" />
     <ClInclude Include="const.h" />
     <ClInclude Include="EnemyController.h" />
@@ -150,10 +154,12 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="MenuController.h" />
     <ClInclude Include="MovingObject.h" />
     <ClInclude Include="ObjectController.h" />
     <ClInclude Include="PauseMenu.h" />
     <ClInclude Include="RectObject.h" />
+    <ClInclude Include="SettingsMenu.h" />
     <ClInclude Include="StaticObject.h" />
   </ItemGroup>
   <ItemGroup>
