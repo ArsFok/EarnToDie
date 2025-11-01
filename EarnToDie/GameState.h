@@ -8,6 +8,8 @@
 using namespace sf;
 using namespace std;
 
+class ShopMenu;
+
 class GameState {
 public:
     enum class GameStatus {
@@ -17,13 +19,18 @@ public:
         GameWon
     };
 
-    GameState() : playerSpeed(0), playerFuel(FUEL), playerDist(0), playerGold(0), totalGold(0), m_gameStatus(GameStatus::Playing) {
+    GameState() : playerSpeed(0), playerBoostFuel(100), playerFuel(FUEL), playerDist(0), playerGold(0), totalGold(0), m_gameStatus(GameStatus::Playing), m_shopMenu(nullptr) {
         font.loadFromFile("C:/Windows/Fonts/Arial.ttf");
 
         speedText.setFont(font);
         speedText.setCharacterSize(24);
         speedText.setFillColor(Color::White);
         speedText.setPosition(10, 10);
+
+        boostText.setFont(font);
+        boostText.setCharacterSize(24);
+        boostText.setFillColor(Color::White);
+        boostText.setPosition(10, 130);
 
         fuelText.setFont(font);
         fuelText.setCharacterSize(24);
@@ -40,10 +47,23 @@ public:
         goldText.setFillColor(Color::White);
         goldText.setPosition(10, 100);
 
+        helpText.setFont(font);
+        helpText.setCharacterSize(18);
+        helpText.setFillColor(Color::White);
+        helpText.setStyle(Text::Bold);
+        helpText.setString("CONTROLS: ARROWS/A,D - Move  |  SHIFT - Boost  |  ESC - Pause");
+
+        FloatRect textBounds = helpText.getLocalBounds();
+        helpText.setPosition((WINDOW_WIDTH - textBounds.width) / 2, WINDOW_HEIGHT - 40);
+
         updateSpeedText();
         updateFuelText();
         updateDistText();
         updateGoldText();
+    }
+    void setShopMenu(ShopMenu* shopMenu) {
+        m_shopMenu = shopMenu;
+        applyShopUpgrades();
     }
 
     void draw(RenderWindow& window);
@@ -72,7 +92,7 @@ public:
     void restartGame() {
         m_gameStatus = GameStatus::Playing;
         playerSpeed = 0;
-        playerFuel = FUEL;
+        playerFuel = getMaxFuel();
         playerGold = 0;
         playerDist = 0;
         updateSpeedText();
@@ -96,17 +116,32 @@ public:
     int getPlayerGold() const { return playerGold; }
     int& getTotalGoldRef() { return totalGold; }
 
+    void setBoostInfo(int fuel, int maxFuel, bool isActive);
+
+    void applyShopUpgrades();
+    int getMaxFuel() const;
+
+
 private:
     float playerSpeed;    // Скорость  
+    int playerBoostFuel;  // Буст
+    int MaxPlayerBoostFuel;
     int playerFuel;       // Топливо 
     int playerDist;       // Расстояние
     int playerGold;       // Золото
     int totalGold;        // Общее золото за все время
+    bool boostActive = false;
+
     GameStatus m_gameStatus;
+    ShopMenu* m_shopMenu;
 
     Font font;
     Text speedText;
     Text fuelText;
     Text distText;
     Text goldText;
+    Text boostText;
+    Text helpText;
+
+    int m_maxFuel = 100;
 };

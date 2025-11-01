@@ -50,9 +50,9 @@ ShopMenu::ShopMenu(RenderWindow& window, int& goldRef)
 
 void ShopMenu::initializeUpgrades() {
     upgrades = {
-        {"Fuel Capacity", 100, 0, 5},
-        {"Acceleration", 150, 0, 5},
-        {"Car Speed", 200, 0, 5}
+        {"Fuel", 100, 0, 5, " Capacity"},
+        {"Boost", 150, 0, 5, " Power"},
+        {"Speed", 200, 0, 5, " Upgrade"}
     };
 }
 
@@ -243,6 +243,7 @@ void ShopMenu::handleEvents() {
                                 << " level " << upgrades[selectedIndex].currentLevel
                                 << " for " << price << " gold" << std::endl;
                             saveUpgrades();
+                            applyUpgradesImmediately();
                         }
                     }
                     else {
@@ -289,6 +290,7 @@ void ShopMenu::handleEvents() {
                                     << " level " << upgrades[i].currentLevel
                                     << " for " << price << " gold" << std::endl;
                                 saveUpgrades();
+                                applyUpgradesImmediately();
                             }
                         }
                         else {
@@ -381,21 +383,53 @@ void ShopMenu::render() {
 void ShopMenu::loadUpgrades() {
     std::ifstream file("shop_upgrades.dat");
     if (file.is_open()) {
+        std::cout << "DEBUG: Loading shop upgrades from file..." << std::endl;
         for (size_t i = 0; i < upgrades.size(); ++i) {
             file >> upgrades[i].currentLevel;
+            std::cout << "DEBUG: " << upgrades[i].name << " level: " << upgrades[i].currentLevel << std::endl;
         }
         file.close();
-        std::cout << "Loaded shop upgrades" << std::endl;
+        std::cout << "DEBUG: Shop upgrades loaded successfully" << std::endl;
+    }
+    else {
+        std::cout << "DEBUG: No shop upgrades file found, using defaults" << std::endl;
+        // Сбрасываем уровни до 0
+        for (auto& upgrade : upgrades) {
+            upgrade.currentLevel = 0;
+        }
     }
 }
 
 void ShopMenu::saveUpgrades() {
     std::ofstream file("shop_upgrades.dat");
     if (file.is_open()) {
+        std::cout << "DEBUG: Saving shop upgrades..." << std::endl;
         for (const auto& upgrade : upgrades) {
             file << upgrade.currentLevel << " ";
+            std::cout << "DEBUG: Saved " << upgrade.name << " level: " << upgrade.currentLevel << std::endl;
         }
         file.close();
-        std::cout << "Saved shop upgrades" << std::endl;
+        std::cout << "DEBUG: Shop upgrades saved successfully" << std::endl;
     }
+    else {
+        std::cout << "ERROR: Could not save shop upgrades!" << std::endl;
+    }
+}
+void ShopMenu::applyUpgradesImmediately() {
+    m_upgradesChanged = true;
+    std::cout << "DEBUG: Upgrades marked as changed - need immediate application" << std::endl;
+    std::cout << "DEBUG: Current levels - Fuel: " << upgrades[0].currentLevel
+        << ", Boost: " << upgrades[1].currentLevel
+        << ", Speed: " << upgrades[2].currentLevel << std::endl;
+}   
+
+void ShopMenu::resetUpgrades() {
+    std::cout << "DEBUG: Resetting all shop upgrades to 0" << std::endl;
+    for (auto& upgrade : upgrades) {
+        std::cout << "DEBUG: Resetting " << upgrade.name << " from "
+            << upgrade.currentLevel << " to 0" << std::endl;
+        upgrade.currentLevel = 0;
+    }
+    saveUpgrades(); // Сохраняем сброшенное состояние
+    std::cout << "DEBUG: All shop upgrades reset to 0 and saved" << std::endl;
 }

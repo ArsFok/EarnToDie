@@ -11,6 +11,7 @@
 #include "main.h"
 #include "GameState.h"
 #include "GameMenu.h"
+#include "ShopMenu.h"
 #include "PauseMenu.h"
 #include "AudioManager.h"
 #include "SettingsMenu.h"
@@ -105,11 +106,18 @@ int main()
     window.setVerticalSyncEnabled(false);
 
     GameState gameState;
-    EntityController controller;
+    ShopMenu shopMenu(window, gameState.getTotalGoldRef());
+    EntityController controller(gameState, &shopMenu);
+    gameState.setShopMenu(&shopMenu);
     AudioManager audioManager;
     FinalGameWindow finalWindow(window);
 
-    GameMenu menu(window, audioManager, gameState.getTotalGoldRef());
+    gameState.loadGold();
+    shopMenu.loadUpgrades();
+    controller.applyShopUpgrades();
+    gameState.applyShopUpgrades();
+
+    GameMenu menu(window, audioManager, gameState.getTotalGoldRef(), shopMenu);
     PauseMenu pauseMenu(window, audioManager);
     SettingsMenu settingsMenu(window, audioManager);
 
@@ -146,7 +154,7 @@ int main()
     vector<unique_ptr<ObjectController>> subjects;
 
     const float enemySpawnRate = 1.0f;
-    const float subjectSpawnRate = 5.0f;
+    const float subjectSpawnRate = 10.0f;
 
     float enemySpawnTimer = 0.0f;
     float subjectSpawnTimer = 0.0f;
@@ -164,15 +172,29 @@ int main()
 
     while (window.isOpen()) {
         // Главное меню
-        if (menu.isActive() || menu.isSettingsActive()) {
+        if (menu.isActive() || menu.isSettingsActive() || menu.isShopActive()) {
             menu.update();
             menu.render();
 
+            if (!menu.isShopActive() && shopMenu.isActiveState()) {
+                shopMenu.setActive(false);
+
+                controller.applyShopUpgrades();
+                gameState.applyShopUpgrades();
+
+                std::cout << "=== AFTER SHOP EXIT ===" << std::endl;
+            }
             if (!menu.isActive() && menu.getMenuResult() == MenuItems::START_GAME) {
                 resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
+
+                shopMenu.loadUpgrades();
+                controller.applyShopUpgrades();
+                gameState.applyShopUpgrades();
             }
             if (menu.isResetGoldRequested()) {
-                menu.resetShopUpgrades();
+                gameState.resetGold();
+                controller.applyShopUpgrades();
+                gameState.applyShopUpgrades();
                 menu.clearResetGoldRequest();
             }
             continue;
@@ -181,11 +203,6 @@ int main()
             handleFinalGameWindow(finalWindow, menu, gameState, enemies, subjects, controller,
                 enemySpawnTimer, subjectSpawnTimer, window);
             continue;
-        }
-
-        if (menu.isResetGoldRequested()) {
-            gameState.resetGold();
-            menu.clearResetGoldRequest();
         }
 
         if (controller.shouldReturnToMainMenu()) {
@@ -223,6 +240,8 @@ int main()
         if (controller.shouldRestartGame()) {
             resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
             controller.resetRestartFlag();
+            controller.applyShopUpgrades();
+            gameState.applyShopUpgrades();
         }
 
         // Режим паузы
@@ -257,6 +276,13 @@ int main()
 
         // Основная игровая логика (только когда игра не на паузе)
         if (gameState.isPlaying() && !pauseMenu.isGamePaused() && !controller.isGameFinal()) {
+            if (shopMenu.haveUpgradesChanged()) {
+                std::cout << "=== MAIN: APPLYING UPGRADES ===" << std::endl;
+                controller.applyShopUpgrades();
+                gameState.applyShopUpgrades();
+                shopMenu.clearUpgradesChanged();
+                std::cout << "=== MAIN: UPGRADES APPLIED ===" << std::endl;
+            }
             float deltaTime = gameClock.restart().asSeconds();
             float scaledDeltaTime = deltaTime * controller.getGameSpeed();
             speed = controller.getGameSpeed();

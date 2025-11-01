@@ -12,11 +12,11 @@ using namespace std;
 
 class GameMenu {
 public:
-    GameMenu(RenderWindow& gameWindow, AudioManager& audioManager, int& goldRef)
+    GameMenu(RenderWindow& gameWindow, AudioManager& audioManager, int& goldRef, ShopMenu& shopMenu)
         : gameWindow(gameWindow)
         , menuController(5)
         , settingsMenu(gameWindow, audioManager)
-        , shopMenu(gameWindow, goldRef)
+        , shopMenu(shopMenu)
         , totalGoldRef(goldRef)
         , isMenuActive(true)
         , resetGoldRequested(false)
@@ -29,8 +29,11 @@ public:
         , totalGoldColor(Color::Yellow)
         , buttonColor(Color(70, 70, 70, 180))
         , buttonOutlineColor(Color::White)
+        , confirmationActive(false)
+        , yesSelected(true)
     {
         initializeResources();
+        initializeConfirmationDialog();
     }
     ~GameMenu() = default;
 
@@ -52,6 +55,7 @@ public:
     bool isResetGoldRequested() const { return resetGoldRequested; }
     void clearResetGoldRequest() { resetGoldRequested = false; }
     void resetGold() { resetGoldRequested = true; }
+
     bool isSettingsActive() const { return settingsMenu.isActive(); }
     SettingsMenu& getSettingsMenu() { return settingsMenu; }
 

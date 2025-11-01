@@ -190,7 +190,7 @@ void GameMenu::handleEvents() {
 
 void GameMenu::render() {
     if (confirmationActive) {
-        gameWindow.clear(backgroundColor);
+        gameWindow.clear();
         RectangleShape backgroundOverlay(Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
         backgroundOverlay.setFillColor(Color(0, 0, 0, 150));
         gameWindow.draw(background);
@@ -351,6 +351,7 @@ void GameMenu::handleMenuSelection(int selectedIndex) {
         break;
     case MenuItems::NEW_GAME:
         std::cout << "ACTION: New game confirmation requested..." << std::endl;
+        std::cout << "Activating confirmation dialog..." << std::endl;
         confirmationActive = true;
         waitingForNewGameConfirmation = true;
         yesSelected = true;
@@ -382,53 +383,52 @@ void GameMenu::resetMenu() {
     updateMenuVisuals();
 }
 void GameMenu::initializeConfirmationDialog() {
-    // Фон диалога
-    confirmationBox.setSize(Vector2f(400, 200));
+    confirmationBox.setSize(Vector2f(500, 250));
     confirmationBox.setFillColor(Color(50, 50, 80, 240));
     confirmationBox.setOutlineThickness(3);
     confirmationBox.setOutlineColor(Color::White);
-    confirmationBox.setOrigin(200, 100);
+    confirmationBox.setOrigin(250, 125);
     confirmationBox.setPosition(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 
-    // Текст подтверждения
+
     confirmationText.setFont(font);
     confirmationText.setString("Are you sure?\nThis will reset all gold and upgrades!");
-    confirmationText.setCharacterSize(24);
+    confirmationText.setCharacterSize(22);
     confirmationText.setFillColor(Color::White);
     confirmationText.setStyle(Text::Bold);
+    confirmationText.setLineSpacing(1.2f);
 
     FloatRect textRect = confirmationText.getLocalBounds();
     confirmationText.setOrigin(textRect.left + textRect.width / 2.0f,
         textRect.top + textRect.height / 2.0f);
-    confirmationText.setPosition(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 30);
+    confirmationText.setPosition(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 40);
 
-    // Кнопка YES
+    // Кнопка YES 
     yesText.setFont(font);
     yesText.setString("YES");
-    yesText.setCharacterSize(22);
-    yesText.setFillColor(Color::Yellow); // Выбрана по умолчанию
+    yesText.setCharacterSize(24);
+    yesText.setFillColor(Color::Yellow);
 
     FloatRect yesRect = yesText.getLocalBounds();
     yesText.setOrigin(yesRect.left + yesRect.width / 2.0f,
         yesRect.top + yesRect.height / 2.0f);
-    yesText.setPosition(WINDOW_WIDTH / 2 - 80, WINDOW_HEIGHT / 2 + 40);
+    yesText.setPosition(WINDOW_WIDTH / 2 - 90, WINDOW_HEIGHT / 2 + 50);
 
-    // Кнопка NO
+    // Кнопка NO 
     noText.setFont(font);
     noText.setString("NO");
-    noText.setCharacterSize(22);
+    noText.setCharacterSize(24);
     noText.setFillColor(Color::White);
 
     FloatRect noRect = noText.getLocalBounds();
     noText.setOrigin(noRect.left + noRect.width / 2.0f,
         noRect.top + noRect.height / 2.0f);
-    noText.setPosition(WINDOW_WIDTH / 2 + 80, WINDOW_HEIGHT / 2 + 40);
+    noText.setPosition(WINDOW_WIDTH / 2 + 90, WINDOW_HEIGHT / 2 + 50);
 
     confirmationActive = false;
     waitingForNewGameConfirmation = false;
     yesSelected = true;
 }
-
 void GameMenu::handleConfirmationEvents(Event& event) {
     if (!confirmationActive) return;
 
@@ -448,7 +448,10 @@ void GameMenu::handleConfirmationEvents(Event& event) {
                     isMenuActive = false;
                     resetGoldRequested = true;
                     resetShopUpgrades();
-                    std::cout << "New game confirmed!" << std::endl;
+                    shopMenu.saveUpgrades();
+                    std::cout << "DEBUG: New game confirmed - resetting everything" << std::endl;
+                    std::cout << "DEBUG: Gold will be reset to 0" << std::endl;
+                    std::cout << "DEBUG: Upgrades will be reset to 0" << std::endl;
                 }
             }
             confirmationActive = false;

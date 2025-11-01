@@ -8,6 +8,8 @@
 using namespace sf;
 using namespace std;
 
+class GameState;
+
 class ShopMenu {
 private:
 
@@ -33,6 +35,7 @@ private:
     int playerGold;
     int previousSelectedIndex;
     int& playerGoldRef;
+    bool m_upgradesChanged = false;
 
     // Статистики улучшений
     struct Upgrade {
@@ -73,23 +76,24 @@ public:
     int getFuelCapacity() const { return 100 + upgrades[0].currentLevel * 50; } // Базовый бак 100 + 50 за уровень
     int getAccelerationLevel() const { return upgrades[1].currentLevel; } // Уровень ускорения (0-5)
     int getCarSpeedLevel() const { return upgrades[2].currentLevel; } // Уровень скорости машины (0-5)
+    int getFuelCapacityLevel() const { return upgrades[0].currentLevel; }
+
+    bool haveUpgradesChanged() const { return m_upgradesChanged; }
+    void clearUpgradesChanged() { m_upgradesChanged = false; }
+    void applyUpgradesImmediately();
+    void resetUpgrades();
 
     // Загрузка/сохранение улучшений
     void loadUpgrades();
     void saveUpgrades();
 
-    void resetUpgrades() {
-        for (auto& upgrade : upgrades) {
-            upgrade.currentLevel = 0;
-        }
-        saveUpgrades(); // Сохраняем сброшенное состояние
-        std::cout << "All shop upgrades reset to 0" << std::endl;
+    void reloadUpgrades() {
+        loadUpgrades();
     }
-
 
     enum ShopItems {
         FUEL_CAPACITY = 0,
-        ACCELERATION = 1,
+        BOOST = 1,
         CAR_SPEED = 2,
         BACK = 3
     };
