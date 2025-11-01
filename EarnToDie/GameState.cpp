@@ -14,12 +14,6 @@ void GameState::draw(RenderWindow& window) {
 	window.draw(fuelText);
 	window.draw(distText);
 	window.draw(goldText);
-
-	if (m_gameStatus != GameStatus::Playing) {
-		if (m_gameStatus == GameStatus::GameOver) {
-			window.draw(gameOverText);
-		}
-	}
 }
 
 void GameState::decreaseSpeed(int speed) {
@@ -28,8 +22,7 @@ void GameState::decreaseSpeed(int speed) {
 }
 void GameState::decreaseFuel(int fuel) {
 	playerFuel -= fuel;
-	if (playerFuel < 0) {
-		playerFuel = 0;
+	if (playerFuel <= 0) {
 		setGameOver();
 	}
 	cout << "[decreaseFUEL:]" << playerFuel << endl;
@@ -38,7 +31,7 @@ void GameState::decreaseFuel(int fuel) {
 void GameState::decreaseDist(int dist) {
 	playerDist += dist;
 	if (playerDist > 1000) {
-		setGameOver();
+		setGameWon();
 	}
 	cout << "[decreaseDIST:]" << playerDist << endl;
 	updateDistText();

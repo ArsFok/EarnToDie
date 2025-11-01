@@ -5,6 +5,9 @@
 #include "ObjectController.h"
 #include "CircleObject.h"
 #include "RectObject.h"
+#include "EnemySpawner.h"
+#include "SubjectSpawner.h"
+#include "FinalGameWindow.h"
 #include "main.h"
 #include "GameState.h"
 #include "GameMenu.h"
@@ -19,56 +22,20 @@
 using namespace sf;
 using namespace std;
 
-void createEnemies(float& enemySpawnTimer, const float enemySpawnRate, vector<unique_ptr<EnemyController>>& enemies, GameState& gameState, float new_speed) {
-    if (!gameState.isPlaying()) return;
-    if (enemySpawnTimer >= enemySpawnRate) {
-        enemySpawnTimer = 0.0f;
-
-        float speed = new_speed;
-        int gold = 1;
-        float size = 70;
-        const int spawnWidth = WINDOW_WIDTH - 485;
-        const int minX = 240;
-
-        Vector2f position(minX + rand() % spawnWidth, -60.f);
-
-        enemies.push_back(
-            make_unique<EnemyController>(
-                make_unique<RectObject>(size, position, gold),
-                new_speed
-            )
-        );
-    }
-}
-
-void createSubject(float& enemySpawnTimer, const float enemySpawnRate, vector<unique_ptr<ObjectController>>& subjects, GameState& gameState, float new_speed) {
-    if (!gameState.isPlaying()) return;
-    if (enemySpawnTimer >= enemySpawnRate) {
-        enemySpawnTimer = 0.0f;
-
-        float speed = new_speed;
-
-        Vector2f position(240 + rand() % (WINDOW_WIDTH - 495), -60);
-        float radius = 30;
-
-        unique_ptr<StaticObject> subject = make_unique<CircleObject>(radius, position);
-        subjects.push_back(make_unique<ObjectController>(move(subject), speed));
-    }
-}
-
 void resetGame(GameState& gameState, vector<unique_ptr<EnemyController>>& enemies, vector<unique_ptr<ObjectController>>& subjects, EntityController& controller,
-    float& enemySpawnTimer, float& subjectSpawnTimer, int& distance) {
+    float& enemySpawnTimer, float& subjectSpawnTimer) {
+    cout << "DEBUG: resetGame called" << endl;
     gameState.restartGame();
+    gameState.resetDistance();
     enemies.clear();
     subjects.clear();
     enemySpawnTimer = 0.0f;
     subjectSpawnTimer = 0.0f;
-    distance = 0;
 }
 
 void handlePauseMode(PauseMenu& pauseMenu, GameState& gameState, EntityController& controller,
     vector<unique_ptr<EnemyController>>& enemies, vector<unique_ptr<ObjectController>>& subjects,
-    float& enemySpawnTimer, float& subjectSpawnTimer, int& distance) {
+    float& enemySpawnTimer, float& subjectSpawnTimer) {
 
     pauseMenu.resetMenuResult();
 
@@ -80,7 +47,7 @@ void handlePauseMode(PauseMenu& pauseMenu, GameState& gameState, EntityControlle
         switch (menuResult) {
         case PauseMenuItems::RESUME:
             pauseMenu.setActive(false);
-            pauseMenu.setGamePaused(false); 
+            pauseMenu.setGamePaused(false);
             break;
         case PauseMenuItems::MAIN_MENU:
             controller.setReturnToMainMenu();
@@ -103,15 +70,46 @@ void handlePauseMode(PauseMenu& pauseMenu, GameState& gameState, EntityControlle
     }
 }
 
+void handleFinalGameWindow(FinalGameWindow& finalWindow, GameMenu& menu, GameState& gameState,
+    vector<unique_ptr<EnemyController>>& enemies, vector<unique_ptr<ObjectController>>& subjects,
+    EntityController& controller, float& enemySpawnTimer, float& subjectSpawnTimer, RenderWindow& window) {
+    finalWindow.update();
+    finalWindow.render();
+    finalWindow.getWindow().display();
+
+    if (!finalWindow.isActiveState()) {
+        int action = finalWindow.getSelectedAction();
+        switch (action) {
+        case FinalGameWindow::RESTART_GAME:
+            cout << "Restarting game from final window..." << endl;
+            resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
+            break;
+        case FinalGameWindow::MAIN_MENU:
+            cout << "Returning to main menu from final window..." << endl;
+            menu.setActive(true);
+            resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
+            break;
+        case FinalGameWindow::EXIT_GAME:
+            cout << "Exiting game from final window..." << endl;
+            window.close();
+            break;
+        }
+    }
+}
+
 int main()
 {
     RenderWindow window(VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "EarnToDie");
 
+    window.setFramerateLimit(120);
+    window.setVerticalSyncEnabled(false);
+
     GameState gameState;
     EntityController controller;
     AudioManager audioManager;
+    FinalGameWindow finalWindow(window);
 
-    GameMenu menu(window, audioManager);
+    GameMenu menu(window, audioManager, gameState.getTotalGoldRef());
     PauseMenu pauseMenu(window, audioManager);
     SettingsMenu settingsMenu(window, audioManager);
 
@@ -140,15 +138,15 @@ int main()
     background1.setPosition(0, 0);
     background2.setPosition(0, -static_cast<float>(WINDOW_HEIGHT));
 
-    float backgroundSpeed = 400.0f;
+    float backgroundSpeed = 600.0f;
     float backgroundY1 = 0.0f;
     float backgroundY2 = -static_cast<float>(WINDOW_HEIGHT);
 
     vector<unique_ptr<EnemyController>> enemies;
     vector<unique_ptr<ObjectController>> subjects;
 
-    float enemySpawnRate = 1.0f;
-    const float subjectSpawnRate = 1.5f;
+    const float enemySpawnRate = 1.0f;
+    const float subjectSpawnRate = 5.0f;
 
     float enemySpawnTimer = 0.0f;
     float subjectSpawnTimer = 0.0f;
@@ -157,9 +155,10 @@ int main()
     float saveTimer = 0.0f;
 
     float speed = 0;
-    int dist = 0;
-    int distance = 0;
     Clock gameClock;
+
+    SubjectSpawner subjectSpawner(subjectSpawnTimer, subjectSpawnRate, subjects, gameState, 1.5f);
+    EnemySpawner enemySpawner(enemySpawnTimer, enemySpawnRate, enemies, gameState, 1.5f);
 
     gameState.loadGold();
 
@@ -168,12 +167,19 @@ int main()
         if (menu.isActive() || menu.isSettingsActive()) {
             menu.update();
             menu.render();
-            menu.setTotalGold(gameState.getTotalGold());
 
             if (!menu.isActive() && menu.getMenuResult() == MenuItems::START_GAME) {
-                gameState.restartGame();
-                resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, distance);
+                resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
             }
+            if (menu.isResetGoldRequested()) {
+                menu.resetShopUpgrades();
+                menu.clearResetGoldRequest();
+            }
+            continue;
+        }
+        if (finalWindow.isActiveState()) {
+            handleFinalGameWindow(finalWindow, menu, gameState, enemies, subjects, controller,
+                enemySpawnTimer, subjectSpawnTimer, window);
             continue;
         }
 
@@ -185,7 +191,7 @@ int main()
         if (controller.shouldReturnToMainMenu()) {
             controller.resetReturnToMainMenu();
             menu.setActive(true);
-            resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, distance);
+            resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
             continue;
         }
 
@@ -215,22 +221,35 @@ int main()
 
         // Обработка рестарта игры
         if (controller.shouldRestartGame()) {
-            resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, dist);
+            resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
             controller.resetRestartFlag();
         }
 
         // Режим паузы
         if (pauseMenu.isActive() || pauseMenu.isGamePaused() || pauseMenu.isSettingsActive()) {
-            handlePauseMode(pauseMenu, gameState, controller, enemies, subjects, enemySpawnTimer, subjectSpawnTimer, distance);
+            handlePauseMode(pauseMenu, gameState, controller, enemies, subjects, enemySpawnTimer, subjectSpawnTimer);
 
             // Проверяем результат после выхода из режима паузы
             if (controller.shouldReturnToMainMenu()) {
                 controller.resetReturnToMainMenu();
                 menu.setActive(true);
-                resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, distance);
+                resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
                 continue;
             }
 
+            continue;
+        }
+        if (gameState.isGameOver()) {
+            finalWindow.setActive(true, 0); // 0 = поражение
+            continue;
+        }
+        if (gameState.isGameWon()) {
+            finalWindow.setActive(true, 1); // 1 = победа
+            continue;
+        }
+        if (controller.isGameFinal()) {
+            bool playerWon = controller.hasPlayerWon();
+            finalWindow.setActive(true, playerWon ? 1 : 0);
             continue;
         }
 
@@ -257,10 +276,14 @@ int main()
 
             distanceTimer += deltaTime;
             if (distanceTimer >= 1.0f) {
-                dist = speed * distanceTimer;
+                int dist = static_cast<int>(speed);
                 distanceTimer = 0.0f;
                 gameState.decreaseDist(dist);
-                distance += dist;
+
+                if (gameState.getPlayerDist() > 100) {
+                    enemySpawner.setSpawnRate(0.5f);
+                    enemySpawner.setSpeedMultiplier(2.0f);
+                }
             }
 
             if (backgroundY1 >= WINDOW_HEIGHT) {
@@ -276,12 +299,8 @@ int main()
             enemySpawnTimer += scaledDeltaTime;
             subjectSpawnTimer += scaledDeltaTime;
 
-            if (distance > 100) {
-                enemySpawnRate = 0.5f;
-            }
-
-            createEnemies(enemySpawnTimer, enemySpawnRate, enemies, gameState, speed);
-            createSubject(subjectSpawnTimer, subjectSpawnRate, subjects, gameState, speed);
+            subjectSpawner.update(speed);
+            enemySpawner.update(speed);
 
             // Обновление врагов
             for (auto it = enemies.begin(); it != enemies.end();) {
@@ -317,11 +336,11 @@ int main()
         window.draw(background1);
         window.draw(background2);
 
-        for (const auto& enemy : enemies) {
-            enemy->draw(window);
-        }
         for (const auto& subject : subjects) {
             subject->draw(window);
+        }
+        for (const auto& enemy : enemies) {
+            enemy->draw(window);
         }
 
         gameState.draw(window);

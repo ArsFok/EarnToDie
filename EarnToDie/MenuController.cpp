@@ -1,7 +1,7 @@
 #include "MenuController.h"
 
 MenuController::MenuController(int menuItemsCount)
-    : menuItemsCount(menuItemsCount) {
+    : selectedIndex(0), menuItemsCount(menuItemsCount) {
 }
 
 void MenuController::moveUp() {

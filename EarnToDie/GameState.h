@@ -2,98 +2,111 @@
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <fstream>
 #include "const.h"
 
 using namespace sf;
+using namespace std;
 
 class GameState {
 public:
-	enum class GameStatus {
-		Playing,
-		Paused,
-		GameOver
-	};
-	GameState() : playerSpeed(0), playerFuel(FUEL), playerDist(0), playerGold(0), m_gameStatus(GameStatus::Playing) {
-		font.loadFromFile("C:/Windows/Fonts/Arial.ttf");
-		speedText.setFont(font);
-		speedText.setCharacterSize(24);
-		speedText.setFillColor(Color::White);
-		speedText.setPosition(10, 10);
+    enum class GameStatus {
+        Playing,
+        Paused,
+        GameOver,
+        GameWon
+    };
 
-		fuelText.setFont(font);
-		fuelText.setCharacterSize(24);
-		fuelText.setFillColor(Color::White);
-		fuelText.setPosition(10, 40);
+    GameState() : playerSpeed(0), playerFuel(FUEL), playerDist(0), playerGold(0), totalGold(0), m_gameStatus(GameStatus::Playing) {
+        font.loadFromFile("C:/Windows/Fonts/Arial.ttf");
 
-		distText.setFont(font);
-		distText.setCharacterSize(24);
-		distText.setFillColor(Color::White);
-		distText.setPosition(10, 70);
+        speedText.setFont(font);
+        speedText.setCharacterSize(24);
+        speedText.setFillColor(Color::White);
+        speedText.setPosition(10, 10);
 
-		goldText.setFont(font);
-		goldText.setCharacterSize(24);
-		goldText.setFillColor(Color::White);
-		goldText.setPosition(10, 100);
+        fuelText.setFont(font);
+        fuelText.setCharacterSize(24);
+        fuelText.setFillColor(Color::White);
+        fuelText.setPosition(10, 40);
 
-		gameOverText.setFont(font);
-		gameOverText.setString("GAME OVER\nPress BACKSPACE to restart");
-		gameOverText.setCharacterSize(40);
-		gameOverText.setFillColor(Color::Red);
-		gameOverText.setStyle(Text::Bold);
-		gameOverText.setPosition(WINDOW_WIDTH / 2 - 180, WINDOW_HEIGHT / 2 - 50);
+        distText.setFont(font);
+        distText.setCharacterSize(24);
+        distText.setFillColor(Color::White);
+        distText.setPosition(10, 70);
 
-		updateSpeedText();
-		updateFuelText();
-		updateDistText();
-		updateGoldText();
-	}
-	void draw(RenderWindow& window);
-	void updateGoldText();
-	void decreaseSpeed(int damage);
-	void updateSpeedText();
-	void decreaseFuel(int fuel);
-	void updateFuelText();
-	void decreaseDist(int dist);
-	void updateDistText();
+        goldText.setFont(font);
+        goldText.setCharacterSize(24);
+        goldText.setFillColor(Color::White);
+        goldText.setPosition(10, 100);
 
-	bool isPaused() const { return m_gameStatus == GameStatus::Paused; }
-	bool isGameOver() const { return m_gameStatus == GameStatus::GameOver; }
-	bool isPlaying() const { return m_gameStatus == GameStatus::Playing; }
+        updateSpeedText();
+        updateFuelText();
+        updateDistText();
+        updateGoldText();
+    }
 
-	void setPaused(bool paused) { m_gameStatus = paused ? GameStatus::Paused : GameStatus::Playing; }
-	void setGameOver() { m_gameStatus = GameStatus::GameOver; }
-	void restartGame() {
-		m_gameStatus = GameStatus::Playing;
-		playerSpeed = 0;
-		playerFuel = FUEL;
-		playerGold = 0;
-		playerDist = 0;
-		updateSpeedText();
-		updateFuelText();
-		updateDistText();
-		updateGoldText();
-	}
-	GameStatus getGameStatus() const { return m_gameStatus; }
+    void draw(RenderWindow& window);
+    void updateGoldText();
+    void decreaseSpeed(int damage);
+    void updateSpeedText();
+    void decreaseFuel(int fuel);
+    void updateFuelText();
+    void decreaseDist(int dist);
+    void updateDistText();
 
-	void loadGold();
-	void saveGold();
-	void addGold(int amount);
-	void resetGold();
-	int getTotalGold() const;
+    bool isPaused() const { return m_gameStatus == GameStatus::Paused; }
+    bool isGameOver() const { return m_gameStatus == GameStatus::GameOver; }
+    bool isGameWon() const { return m_gameStatus == GameStatus::GameWon; }
+    bool isPlaying() const { return m_gameStatus == GameStatus::Playing; }
+
+    void setPaused(bool paused) { m_gameStatus = paused ? GameStatus::Paused : GameStatus::Playing; }
+    void setGameOver() { m_gameStatus = GameStatus::GameOver; }
+    void setGameWon() { m_gameStatus = GameStatus::GameWon; }
+    void resetDistance() {
+        playerDist = 0;
+        updateDistText();
+        cout << "DEBUG: Distance reset to " << playerDist << endl;
+    }
+
+    void restartGame() {
+        m_gameStatus = GameStatus::Playing;
+        playerSpeed = 0;
+        playerFuel = FUEL;
+        playerGold = 0;
+        playerDist = 0;
+        updateSpeedText();
+        updateFuelText();
+        updateDistText();
+        updateGoldText();
+    }
+
+    GameStatus getGameStatus() const { return m_gameStatus; }
+
+    void loadGold();
+    void saveGold();
+    void addGold(int amount);
+    void resetGold();
+    int getTotalGold() const;
+
+    // Геттеры для доступа к игровым данным
+    float getPlayerSpeed() const { return playerSpeed; }
+    int getPlayerFuel() const { return playerFuel; }
+    int getPlayerDist() const { return playerDist; }
+    int getPlayerGold() const { return playerGold; }
+    int& getTotalGoldRef() { return totalGold; }
 
 private:
-	float playerSpeed;	// Скорость  
-	int playerFuel;		// Топливо 
-	int playerDist;		// Расстояние
-	int playerGold;		// Золото
-	int totalGold;		// Общее золото за все время
-	GameStatus m_gameStatus;
+    float playerSpeed;    // Скорость  
+    int playerFuel;       // Топливо 
+    int playerDist;       // Расстояние
+    int playerGold;       // Золото
+    int totalGold;        // Общее золото за все время
+    GameStatus m_gameStatus;
 
-	Font font;
-	Text speedText;
-	Text fuelText;
-	Text distText;
-	Text goldText;
-
-	Text gameOverText;
+    Font font;
+    Text speedText;
+    Text fuelText;
+    Text distText;
+    Text goldText;
 };

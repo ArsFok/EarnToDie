@@ -2,15 +2,36 @@
 #include <SFML/Graphics.hpp>
 #include "MenuController.h"
 #include "SettingsMenu.h"
+#include "ShopMenu.h"
 #include <vector>
 #include <string>
+#include <iostream>
 
 using namespace sf;
 using namespace std;
 
 class GameMenu {
 public:
-    GameMenu(RenderWindow& gameWindow, AudioManager& audioManager);
+    GameMenu(RenderWindow& gameWindow, AudioManager& audioManager, int& goldRef)
+        : gameWindow(gameWindow)
+        , menuController(5)
+        , settingsMenu(gameWindow, audioManager)
+        , shopMenu(gameWindow, goldRef)
+        , totalGoldRef(goldRef)
+        , isMenuActive(true)
+        , resetGoldRequested(false)
+        , menuResult(0)
+        , previousSelectedIndex(-1)
+        , normalColor(Color::White)
+        , selectedColor(Color::Yellow)
+        , titleColor(Color::Red)
+        , backgroundColor(Color(30, 30, 60, 200))
+        , totalGoldColor(Color::Yellow)
+        , buttonColor(Color(70, 70, 70, 180))
+        , buttonOutlineColor(Color::White)
+    {
+        initializeResources();
+    }
     ~GameMenu() = default;
 
     bool isActive() const { return isMenuActive; }
@@ -24,12 +45,18 @@ public:
     int getMenuResult() const { return menuResult; }
     void resetMenu();
 
+    void resetShopUpgrades() {
+        shopMenu.resetUpgrades();
+    }
+
     bool isResetGoldRequested() const { return resetGoldRequested; }
     void clearResetGoldRequest() { resetGoldRequested = false; }
-    void setTotalGold(int gold) { totalGoldValue = gold; }
     void resetGold() { resetGoldRequested = true; }
     bool isSettingsActive() const { return settingsMenu.isActive(); }
     SettingsMenu& getSettingsMenu() { return settingsMenu; }
+
+    bool isShopActive() const { return shopMenu.isActiveState(); }
+    ShopMenu& getShopMenu() { return shopMenu; }
 
     void update();
     void render();
@@ -44,23 +71,42 @@ private:
 
     MenuController menuController;
     SettingsMenu settingsMenu;
+    ShopMenu shopMenu;
 
     Color normalColor;
     Color selectedColor;
     Color titleColor;
     Color backgroundColor;
-    Color totalGold;
+    Color totalGoldColor;
 
     bool isMenuActive;
     bool resetGoldRequested;
     int menuResult;
-    int totalGoldValue;
+    int& totalGoldRef;
 
     int previousSelectedIndex = -1;
 
+    vector<RectangleShape> buttons; 
+    Color buttonColor;
+    Color buttonOutlineColor;
+
+    void initializeResources();
     void initializeMenuItems();
+    void initializeButtons();
     void updateMenuVisuals();
     void handleMenuSelection(int selectedIndex);
+
+    bool confirmationActive;
+    bool waitingForNewGameConfirmation;
+    Text confirmationText;
+    RectangleShape confirmationBox;
+    Text yesText, noText;
+    bool yesSelected;
+
+    void initializeConfirmationDialog();
+    void handleConfirmationEvents(Event& event);
+    void renderConfirmationDialog();
+    void updateConfirmationVisuals();
 };
 
 namespace MenuItems {

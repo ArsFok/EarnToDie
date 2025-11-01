@@ -52,6 +52,7 @@ private:
     sf::Color normalColor;
     sf::Color selectedColor;
     sf::Color buttonColor;
+    sf::Color titleColor;
     sf::Color buttonOutlineColor;
     sf::Color valueColor;
 

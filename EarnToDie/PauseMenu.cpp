@@ -4,17 +4,23 @@
 
 PauseMenu::PauseMenu(sf::RenderWindow& window, AudioManager& audioManager)
     : gameWindow(window)
-    , menuController(5)
+    , menuController(4)
     , settingsMenu(window, audioManager)
     , normalColor(sf::Color::White)
     , selectedColor(sf::Color::Yellow)
     , buttonColor(sf::Color(70, 70, 70, 200))
     , buttonOutlineColor(sf::Color::White)
+    , titleColor(sf::Color::Cyan)
     , previousSelectedIndex(-1) {
 
     if (!font.loadFromFile("arial.ttf")) {
         std::cout << "Failed to load font for pause menu!" << std::endl;
     }
+
+    if (!backgroundTexture.loadFromFile("menu_background.png")) {
+        backgroundTexture.create(WINDOW_WIDTH, WINDOW_HEIGHT);
+    }
+    background.setTexture(backgroundTexture);
 
     initializeMenuItems();
     initializeButtons();
@@ -34,20 +40,19 @@ void PauseMenu::initializeMenuItems() {
     std::vector<std::string> menuTexts = {
         "Continue",
         "Settings",
-        "Shop",
         "Main Menu",
         "Exit Game"
     };
 
     menuController.setMenuItemsCount(menuTexts.size());
 
-    float startY = WINDOW_HEIGHT / 2 - (menuTexts.size() * (BUTTON_HEIGHT + BUTTON_PADDING)) / 2;
+    float startY = WINDOW_HEIGHT / 2 - (menuTexts.size() * (BUTTON_HEIGHT + BUTTON_PADDING)) / 2 + 50;
 
     for (size_t i = 0; i < menuTexts.size(); ++i) {
         sf::Text text;
         text.setFont(font);
         text.setString(menuTexts[i]);
-        text.setCharacterSize(30);
+        text.setCharacterSize(22); // Такой же размер как в ShopMenu
         text.setFillColor(normalColor);
 
         sf::FloatRect textRect = text.getLocalBounds();
@@ -60,12 +65,12 @@ void PauseMenu::initializeMenuItems() {
 }
 
 void PauseMenu::initializeButtons() {
-    float startY = WINDOW_HEIGHT / 2 - (menuPauseItems.size() * (BUTTON_HEIGHT + BUTTON_PADDING)) / 2;
+    float startY = WINDOW_HEIGHT / 2 - (menuPauseItems.size() * (BUTTON_HEIGHT + BUTTON_PADDING)) / 2 + 50;
 
     for (size_t i = 0; i < menuPauseItems.size(); ++i) {
         sf::RectangleShape button(sf::Vector2f(BUTTON_WIDTH, BUTTON_HEIGHT));
         button.setFillColor(buttonColor);
-        button.setOutlineThickness(2.0f);
+        button.setOutlineThickness(2.0f); // Такой же как в ShopMenu
         button.setOutlineColor(buttonOutlineColor);
 
         button.setOrigin(BUTTON_WIDTH / 2.0f, BUTTON_HEIGHT / 2.0f);
@@ -79,10 +84,10 @@ void PauseMenu::update() {
     handleEvents();
 
     if (settingsMenu.isActive()) {
-        settingsMenu.update(); 
+        settingsMenu.update();
     }
     else {
-        updateMenuVisuals(); // Это для паузы
+        updateMenuVisuals();
     }
 }
 
@@ -194,15 +199,15 @@ void PauseMenu::updateMenuVisuals() {
         if (i == selectedIndex) {
             buttons[i].setFillColor(sf::Color(100, 100, 100, 200));
             buttons[i].setOutlineColor(selectedColor);
-            buttons[i].setOutlineThickness(3.0f);
+            buttons[i].setOutlineThickness(3.0f); // Такой же как в ShopMenu
             menuPauseItems[i].setFillColor(selectedColor);
             menuPauseItems[i].setStyle(sf::Text::Bold);
-            menuPauseItems[i].setScale(1.05f, 1.05f);
+            menuPauseItems[i].setScale(1.03f, 1.03f); // Такой же как в ShopMenu
         }
         else {
             buttons[i].setFillColor(buttonColor);
             buttons[i].setOutlineColor(buttonOutlineColor);
-            buttons[i].setOutlineThickness(2.0f);
+            buttons[i].setOutlineThickness(2.0f); // Такой же как в ShopMenu
             menuPauseItems[i].setFillColor(normalColor);
             menuPauseItems[i].setStyle(sf::Text::Regular);
             menuPauseItems[i].setScale(1.0f, 1.0f);
@@ -219,24 +224,21 @@ void PauseMenu::handleMenuSelection(int selectedIndex) {
     pauseMenuResult = selectedIndex;
 
     switch (selectedIndex) {
-    case 0: // RESUME
+    case PauseMenuItems::RESUME:
         std::cout << "ACTION: Resuming game..." << std::endl;
         setGamePaused(false);
         setActive(false);
         break;
-    case 1: // SETTINGS
+    case PauseMenuItems::SETTINGS:
         std::cout << "Settings selected from pause menu" << std::endl;
         settingsMenu.setActive(true);
         break;
-    case 2: // SHOP
-        std::cout << "Shop selected from pause menu" << std::endl;
-        break;
-    case 3: // MAIN_MENU
+    case PauseMenuItems::MAIN_MENU:
         std::cout << "ACTION: Returning to main menu..." << std::endl;
         setGamePaused(false);
         setActive(false);
         break;
-    case 4: // EXIT
+    case PauseMenuItems::EXIT:
         std::cout << "ACTION: Exiting game from pause menu" << std::endl;
         gameWindow.close();
         break;
@@ -250,23 +252,25 @@ void PauseMenu::render() {
         settingsMenu.render();
         return;
     }
-    // Полупрозрачный темный фон
+
+    // Полупрозрачный темный фон (как в ShopMenu)
     sf::RectangleShape overlay(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
-    overlay.setFillColor(sf::Color(0, 0, 0, 150));
+    overlay.setFillColor(sf::Color(0, 0, 0, 180));
+    gameWindow.draw(background);
     gameWindow.draw(overlay);
 
     // Заголовок паузы
     sf::Text pauseTitle;
     pauseTitle.setFont(font);
     pauseTitle.setString("GAME PAUSED");
-    pauseTitle.setCharacterSize(60);
-    pauseTitle.setFillColor(sf::Color::Yellow);
+    pauseTitle.setCharacterSize(50); // Такой же размер как в ShopMenu
+    pauseTitle.setFillColor(titleColor);
     pauseTitle.setStyle(sf::Text::Bold);
 
     sf::FloatRect titleRect = pauseTitle.getLocalBounds();
     pauseTitle.setOrigin(titleRect.left + titleRect.width / 2.0f,
         titleRect.top + titleRect.height / 2.0f);
-    pauseTitle.setPosition(WINDOW_WIDTH / 2.0f, 150);
+    pauseTitle.setPosition(WINDOW_WIDTH / 2.0f, 100); // Такая же позиция как в ShopMenu
     gameWindow.draw(pauseTitle);
 
     // Рисуем кнопки
@@ -283,12 +287,12 @@ void PauseMenu::render() {
     sf::Text controlsHint;
     controlsHint.setFont(font);
     controlsHint.setString("Use ARROW KEYS and ENTER to select, ESC to continue");
-    controlsHint.setCharacterSize(18);
+    controlsHint.setCharacterSize(16); // Такой же размер как в ShopMenu
     controlsHint.setFillColor(sf::Color(200, 200, 200));
 
     sf::FloatRect hintRect = controlsHint.getLocalBounds();
     controlsHint.setOrigin(hintRect.left + hintRect.width / 2.0f,
         hintRect.top + hintRect.height / 2.0f);
-    controlsHint.setPosition(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT - 50);
+    controlsHint.setPosition(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT - 50); // Такая же позиция как в ShopMenu
     gameWindow.draw(controlsHint);
-}
+}   

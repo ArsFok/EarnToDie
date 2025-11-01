@@ -34,6 +34,8 @@ public:
 private:
     sf::RenderWindow& gameWindow;
     sf::Font font;
+    sf::Texture backgroundTexture;
+    sf::Sprite background;
     std::vector<sf::Text> menuPauseItems;
     std::vector<sf::RectangleShape> buttons;
 
@@ -49,6 +51,7 @@ private:
     sf::Color selectedColor;
     sf::Color buttonColor;
     sf::Color buttonOutlineColor;
+    sf::Color titleColor;
 
     void initializeMenuItems();
     void initializeButtons();
@@ -57,7 +60,6 @@ private:
 namespace PauseMenuItems {
 	const int RESUME = 0;
 	const int SETTINGS = 1;
-	const int SHOP = 2;
-	const int MAIN_MENU = 3;
-	const int EXIT = 4;
+	const int MAIN_MENU = 2;
+	const int EXIT = 3;
 }

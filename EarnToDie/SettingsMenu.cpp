@@ -14,13 +14,14 @@ SettingsMenu::SettingsMenu(sf::RenderWindow& window, AudioManager& audioManager)
     , selectedColor(sf::Color::Yellow)
     , buttonColor(sf::Color(70, 70, 70, 200))
     , buttonOutlineColor(sf::Color::White)
+    , titleColor(sf::Color::Cyan)
     , valueColor(sf::Color::Green)
     , previousSelectedIndex(-1) {
 
     if (!font.loadFromFile("arial.ttf")) {
         std::cout << "Failed to load font for settings menu!" << std::endl;
     }
-    if (!backgroundTexture.loadFromFile("menu_background.jpg")) {
+    if (!backgroundTexture.loadFromFile("menu_background.png")) { // Тот же фон что в ShopMenu
         backgroundTexture.create(WINDOW_WIDTH, WINDOW_HEIGHT);
     }
     background.setTexture(backgroundTexture);
@@ -51,57 +52,54 @@ void SettingsMenu::initializeMenuItems() {
 
     menuController.setMenuItemsCount(menuTexts.size());
 
-    const float BUTTON_WIDTH_LARGE = 600.0f;
-    const float BUTTON_HEIGHT_LARGE = 80.0f;
-    const float BUTTON_PADDING_LARGE = 20.0f;
-
-    float startY = WINDOW_HEIGHT / 2 - (menuTexts.size() * (BUTTON_HEIGHT_LARGE + BUTTON_PADDING_LARGE)) / 2;
+    float startY = WINDOW_HEIGHT / 2 - (menuTexts.size() * (BUTTON_HEIGHT + BUTTON_PADDING)) / 2 + 50;
 
     for (size_t i = 0; i < menuTexts.size(); ++i) {
         // Текст пункта меню
         sf::Text text;
         text.setFont(font);
         text.setString(menuTexts[i]);
-        text.setCharacterSize(28); // Немного уменьшили размер шрифта
+        text.setCharacterSize(22); // Такой же размер как в ShopMenu
         text.setFillColor(normalColor);
 
         sf::FloatRect textRect = text.getLocalBounds();
         text.setOrigin(textRect.left + textRect.width / 2.0f,
             textRect.top + textRect.height / 2.0f);
-        // Сдвигаем текст левее для места под значения
-        text.setPosition(WINDOW_WIDTH / 2.0f - 150, startY + i * (BUTTON_HEIGHT_LARGE + BUTTON_PADDING_LARGE) + BUTTON_HEIGHT_LARGE / 2);
+        // Позиционируем как в ShopMenu
+        text.setPosition(WINDOW_WIDTH / 2.0f - 120,
+            startY + i * (BUTTON_HEIGHT + BUTTON_PADDING) + BUTTON_HEIGHT / 2);
 
         menuSettingsItems.push_back(text);
 
         // Текст значения настройки
         sf::Text valueText;
         valueText.setFont(font);
-        valueText.setCharacterSize(25);
+        valueText.setCharacterSize(20); // Такой же размер как в ShopMenu
         valueText.setFillColor(valueColor);
 
-        valueText.setOrigin(0, valueText.getLocalBounds().height / 2.0f);
-        // Сдвигаем значения правее
-        valueText.setPosition(WINDOW_WIDTH / 2.0f + 80, startY + i * (BUTTON_HEIGHT_LARGE + BUTTON_PADDING_LARGE) + BUTTON_HEIGHT_LARGE / 2);
+        sf::FloatRect valueRect = valueText.getLocalBounds();
+        valueText.setOrigin(valueRect.left + valueRect.width / 2.0f,
+            valueRect.top + valueRect.height / 2.0f);
+        // Позиционируем как в ShopMenu
+        valueText.setPosition(WINDOW_WIDTH / 2.0f + 80,
+            startY + i * (BUTTON_HEIGHT + BUTTON_PADDING) + BUTTON_HEIGHT / 2);
 
         valueTexts.push_back(valueText);
     }
 }
 
 void SettingsMenu::initializeButtons() {
-    const float BUTTON_WIDTH_LARGE = 600.0f;
-    const float BUTTON_HEIGHT_LARGE = 80.0f;
-    const float BUTTON_PADDING_LARGE = 20.0f;
-
-    float startY = WINDOW_HEIGHT / 2 - (menuSettingsItems.size() * (BUTTON_HEIGHT_LARGE + BUTTON_PADDING_LARGE)) / 2;
+    float startY = WINDOW_HEIGHT / 2 - (menuSettingsItems.size() * (BUTTON_HEIGHT + BUTTON_PADDING)) / 2 + 50;
 
     for (size_t i = 0; i < menuSettingsItems.size(); ++i) {
-        sf::RectangleShape button(sf::Vector2f(BUTTON_WIDTH_LARGE, BUTTON_HEIGHT_LARGE));
+        sf::RectangleShape button(sf::Vector2f(BUTTON_WIDTH, BUTTON_HEIGHT));
         button.setFillColor(buttonColor);
-        button.setOutlineThickness(3.0f);
+        button.setOutlineThickness(2.0f);
         button.setOutlineColor(buttonOutlineColor);
 
-        button.setOrigin(BUTTON_WIDTH_LARGE / 2.0f, BUTTON_HEIGHT_LARGE / 2.0f);
-        button.setPosition(WINDOW_WIDTH / 2.0f, startY + i * (BUTTON_HEIGHT_LARGE + BUTTON_PADDING_LARGE) + BUTTON_HEIGHT_LARGE / 2);
+        button.setOrigin(BUTTON_WIDTH / 2.0f, BUTTON_HEIGHT / 2.0f);
+        button.setPosition(WINDOW_WIDTH / 2.0f,
+            startY + i * (BUTTON_HEIGHT + BUTTON_PADDING) + BUTTON_HEIGHT / 2);
 
         buttons.push_back(button);
     }
@@ -359,10 +357,10 @@ void SettingsMenu::updateMenuVisuals() {
         if (i == selectedIndex) {
             buttons[i].setFillColor(sf::Color(100, 100, 100, 200));
             buttons[i].setOutlineColor(selectedColor);
-            buttons[i].setOutlineThickness(4.0f);
+            buttons[i].setOutlineThickness(3.0f);
             menuSettingsItems[i].setFillColor(selectedColor);
             menuSettingsItems[i].setStyle(sf::Text::Bold);
-            menuSettingsItems[i].setScale(1.1f, 1.1f);
+            menuSettingsItems[i].setScale(1.03f, 1.03f); // Такой же масштаб как в ShopMenu
         }
         else {
             buttons[i].setFillColor(buttonColor);
@@ -392,7 +390,7 @@ void SettingsMenu::handleMenuSelection(int selectedIndex) {
         break;
     case SettingsMenuItems::SAVE_SETTINGS:
         saveSettings();
-        audioManager.playSound("click"); // ← ТЕСТ звука
+        audioManager.playSound("click");
         menuSettingsItems[selectedIndex].setString("Settings Saved!");
         break;
     case SettingsMenuItems::BACK:
@@ -405,20 +403,24 @@ void SettingsMenu::handleMenuSelection(int selectedIndex) {
 }
 
 void SettingsMenu::render() {
-    gameWindow.clear(sf::Color(30, 30, 60, 200));
+    // Полупрозрачный темный фон (как в ShopMenu)
+    sf::RectangleShape overlay(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
+    overlay.setFillColor(sf::Color(0, 0, 0, 180));
+    gameWindow.draw(background);
+    gameWindow.draw(overlay);
 
     // Заголовок настроек
     sf::Text settingsTitle;
     settingsTitle.setFont(font);
     settingsTitle.setString("SETTINGS");
-    settingsTitle.setCharacterSize(60);
-    settingsTitle.setFillColor(sf::Color::Cyan);
+    settingsTitle.setCharacterSize(50); // Такой же размер как в ShopMenu
+    settingsTitle.setFillColor(titleColor);
     settingsTitle.setStyle(sf::Text::Bold);
 
     sf::FloatRect titleRect = settingsTitle.getLocalBounds();
     settingsTitle.setOrigin(titleRect.left + titleRect.width / 2.0f,
         titleRect.top + titleRect.height / 2.0f);
-    settingsTitle.setPosition(WINDOW_WIDTH / 2.0f, 150);
+    settingsTitle.setPosition(WINDOW_WIDTH / 2.0f, 100); // Такая же позиция как в ShopMenu
     gameWindow.draw(settingsTitle);
 
     // Рисуем кнопки
@@ -440,18 +442,20 @@ void SettingsMenu::render() {
     sf::Text controlsHint;
     controlsHint.setFont(font);
     controlsHint.setString("ARROWS/A/D/0/9: Adjust volume  |  PAGE UP/DOWN: Quick adjust  |  HOME/END: Min/Max  |  ENTER: Confirm  |  ESC: Back");
-    controlsHint.setCharacterSize(16);
+    controlsHint.setCharacterSize(16); // Немного больше для лучшей читаемости
     controlsHint.setFillColor(sf::Color(200, 200, 200));
 
     sf::FloatRect hintRect = controlsHint.getLocalBounds();
     controlsHint.setOrigin(hintRect.left + hintRect.width / 2.0f,
         hintRect.top + hintRect.height / 2.0f);
-    controlsHint.setPosition(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT - 50);
+    controlsHint.setPosition(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT - 50); // Такая же позиция как в ShopMenu
     gameWindow.draw(controlsHint);
 }
+
 std::string SettingsMenu::getSettingsFilePath() {
     return "game_settings.cfg";
 }
+
 void SettingsMenu::saveSettings() {
     std::string filePath = getSettingsFilePath();
     std::ofstream file(filePath);
