@@ -28,6 +28,14 @@ public:
     float getSoundVolume() const { return soundVolume; }
     float getMusicVolume() const { return musicVolume; }
 
+    // Проверка загрузки
+    bool isSoundLoaded(const std::string& name) const {
+        return sounds.find(name) != sounds.end();
+    }
+    bool isMusicLoaded(const std::string& name) const {
+        return music.find(name) != music.end();
+    }
+
 private:
     std::unordered_map<std::string, sf::SoundBuffer> soundBuffers;
     std::unordered_map<std::string, sf::Sound> sounds;

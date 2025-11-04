@@ -55,24 +55,24 @@ void GameState::applyShopUpgrades() {
 		std::cout << "DEBUG: No shop menu in GameState!" << std::endl;
 		return;
 	}
+
 	std::cout << "DEBUG: GameState accessing shop menu at address: " << m_shopMenu << std::endl;
 	std::cout << "DEBUG: Before getting fuel capacity from shop..." << std::endl;
-		
+
 	int oldMaxFuel = m_maxFuel;
 	m_maxFuel = m_shopMenu->getFuelCapacity();
 
 	std::cout << "=== FUEL UPGRADE APPLIED ===" << std::endl;
-	std::cout << "Fuel Capacity: " << m_maxFuel << " (Level: " << m_shopMenu->getFuelCapacityLevel() << ")" << std::endl;
+	std::cout << "Fuel Capacity: " << m_maxFuel << " (Level: " << m_shopMenu->getFuelLevel() << ")" << std::endl;
 	std::cout << "Max Fuel: " << oldMaxFuel << " -> " << m_maxFuel << std::endl;
 	std::cout << "Current Fuel: " << playerFuel << "/" << m_maxFuel << std::endl;
 	std::cout << "============================" << std::endl;
 
-	if (playerFuel < m_maxFuel) {
-		playerFuel = m_maxFuel;
-	}
+	playerFuel = m_maxFuel;
 	updateFuelText();
 	updateSpeedText();
 }
+
 int GameState::getMaxFuel() const {
 	return m_maxFuel;
 }
@@ -87,13 +87,22 @@ void GameState::decreaseFuel(int fuel) {
 }
 void GameState::decreaseDist(int dist) {
 	playerDist += dist;
-	if (playerDist > 100) {
+	if (targetDistance > 0 && playerDist >= targetDistance) {
+		cout << "[VICTORY!] Reached target: " << playerDist << "/" << targetDistance << endl;
 		setGameWon();
 	}
-	cout << "[decreaseDIST:]" << playerDist << endl;
+	else {
+		cout << "[decreaseDIST:] " << playerDist;
+		if (targetDistance > 0) {
+			cout << "/" << targetDistance;
+		}
+		else {
+			cout << " (no target set)";
+		}
+		cout << endl;
+	}
 	updateDistText();
 }
-
 
 
 void GameState::updateGoldText() {
@@ -131,7 +140,10 @@ void GameState::updateFuelText() {
 
 void GameState::updateDistText() {
 	stringstream ss;
-	ss << "Distation: " << playerDist << "/100";
+	ss << "Distance: " << playerDist;
+	if (targetDistance > 0) {
+		ss << "/" << targetDistance;
+	}
 	distText.setString(ss.str());
 }
 void GameState::loadGold() {

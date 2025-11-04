@@ -135,6 +135,7 @@
     <ClCompile Include="GameMenu.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameState.cpp" />
+    <ClCompile Include="LevelMenu.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuController.cpp" />
     <ClCompile Include="MovingObject.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="GameMenu.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameState.h" />
+    <ClInclude Include="LevelMenu.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="MenuController.h" />
     <ClInclude Include="MovingObject.h" />

@@ -12,7 +12,6 @@ class GameState;
 
 class ShopMenu {
 private:
-
     sf::RenderWindow& gameWindow;
     sf::Font font;
     sf::Texture backgroundTexture;
@@ -55,8 +54,6 @@ private:
     int getUpgradePrice(int index) const;
     std::string getLevelText(int index) const;
 
-
-
 public:
     ShopMenu(sf::RenderWindow& window, int& goldRef);
     ~ShopMenu() = default;
@@ -67,16 +64,32 @@ public:
     int getSelectedAction() const { return selectedIndex; }
     void resetSelection() { selectedIndex = -1; }
 
-
     void update();
     void render();
     void handleEvents();
 
-    // Геттеры для улучшений
-    int getFuelCapacity() const { return 100 + upgrades[0].currentLevel * 50; } // Базовый бак 100 + 50 за уровень
-    int getAccelerationLevel() const { return upgrades[1].currentLevel; } // Уровень ускорения (0-5)
-    int getCarSpeedLevel() const { return upgrades[2].currentLevel; } // Уровень скорости машины (0-5)
-    int getFuelCapacityLevel() const { return upgrades[0].currentLevel; }
+    // Геттеры для улучшений (понятные названия)
+    int getFuelLevel() const {
+        if (upgrades.size() > 0) return upgrades[0].currentLevel;
+        return 0;
+    }
+    int getBoostLevel() const {
+        if (upgrades.size() > 1) return upgrades[1].currentLevel;
+        return 0;
+    }
+    int getSpeedLevel() const {
+        if (upgrades.size() > 2) return upgrades[2].currentLevel;
+        return 0;
+    }
+
+    int getFuelCapacity() const { return 100 + getFuelLevel() * 50; }
+    int getBoostCapacity() const { return 100 + getBoostLevel() * 25; }
+    float getSpeedMultiplier() const { return 1.0f + getSpeedLevel() * 0.2f; }
+
+    // Совместимость со старым кодом
+    int getFuelCapacityLevel() const { return getFuelLevel(); }
+    int getAccelerationLevel() const { return getBoostLevel(); }
+    int getCarSpeedLevel() const { return getSpeedLevel(); }
 
     bool haveUpgradesChanged() const { return m_upgradesChanged; }
     void clearUpgradesChanged() { m_upgradesChanged = false; }

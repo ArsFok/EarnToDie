@@ -24,13 +24,13 @@ public:
         enemies(enemiesList), gameState(state), speedMultiplier(multiplier) {
     }
 
-    void update(float newSpeed) {
+    void update() {
         if (!gameState.isPlaying()) return;
 
         if (enemySpawnTimer >= enemySpawnRate) {
             enemySpawnTimer = 0.0f;
 
-            float speed = newSpeed * speedMultiplier;
+            float speed = speedMultiplier;
             int gold = 1;
             float size = 70;
             const int spawnWidth = WINDOW_WIDTH - 485;

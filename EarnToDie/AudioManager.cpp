@@ -38,9 +38,12 @@ bool AudioManager::loadMusic(const std::string& name, const std::string& filenam
 }
 
 void AudioManager::playSound(const std::string& name) {
-    if (sounds.find(name) != sounds.end()) {
+    if (isSoundLoaded(name)) {
         sounds[name].setVolume(soundVolume);
         sounds[name].play();
+    }
+    else {
+        std::cout << "Sound not loaded: " << name << std::endl;
     }
 }
 

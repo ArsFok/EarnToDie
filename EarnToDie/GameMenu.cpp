@@ -343,10 +343,12 @@ void GameMenu::handleMenuSelection(int selectedIndex) {
     std::cout << "=== MENU SELECTION ===" << std::endl;
     std::cout << "Selected index: " << selectedIndex << std::endl;
     std::cout << "Menu item: " << menuItems[selectedIndex].getString().toAnsiString() << std::endl;
+    cout << "BEFORE - GameMenu: " << isMenuActive << ", LevelMenu: " << levelMenu.isActive() << endl;
 
     switch (selectedIndex) {
     case MenuItems::START_GAME:
-        std::cout << "ACTION: Starting game..." << std::endl;
+        std::cout << "ACTION: Opening level selection..." << std::endl;
+        levelMenu.setActive(true);
         isMenuActive = false;
         break;
     case MenuItems::NEW_GAME:
@@ -375,11 +377,13 @@ void GameMenu::handleMenuSelection(int selectedIndex) {
     default:
         break;
     }
+    cout << "AFTER - GameMenu: " << isMenuActive << ", LevelMenu: " << levelMenu.isActive() << endl;
 }
 
 void GameMenu::resetMenu() {
     isMenuActive = true;
     menuController.resetSelection();
+    levelMenu.resetSelection();
     updateMenuVisuals();
 }
 void GameMenu::initializeConfirmationDialog() {
@@ -445,13 +449,13 @@ void GameMenu::handleConfirmationEvents(Event& event) {
             if (yesSelected) {
                 // Подтвердили новую игру
                 if (waitingForNewGameConfirmation) {
-                    isMenuActive = false;
+
                     resetGoldRequested = true;
-                    resetShopUpgrades();
-                    shopMenu.saveUpgrades();
-                    std::cout << "DEBUG: New game confirmed - resetting everything" << std::endl;
-                    std::cout << "DEBUG: Gold will be reset to 0" << std::endl;
-                    std::cout << "DEBUG: Upgrades will be reset to 0" << std::endl;
+
+                    levelMenu.setActive(true);
+                    isMenuActive = false;
+
+                    std::cout << "DEBUG: New game confirmed - opening level selection" << std::endl;
                 }
             }
             confirmationActive = false;
@@ -494,9 +498,11 @@ void GameMenu::handleConfirmationEvents(Event& event) {
                 static_cast<float>(event.mouseButton.y))) {
                 // Подтвердили новую игру
                 if (waitingForNewGameConfirmation) {
-                    isMenuActive = false;
                     resetGoldRequested = true;
-                    resetShopUpgrades();
+
+                    levelMenu.setActive(true);
+                    isMenuActive = false;
+
                     std::cout << "New game confirmed!" << std::endl;
                 }
                 confirmationActive = false;

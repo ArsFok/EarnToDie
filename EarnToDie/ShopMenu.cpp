@@ -390,10 +390,14 @@ void ShopMenu::loadUpgrades() {
         }
         file.close();
         std::cout << "DEBUG: Shop upgrades loaded successfully" << std::endl;
+
+        // Проверка геттеров
+        std::cout << "DEBUG: Getters - Fuel: " << getFuelLevel()
+            << ", Boost: " << getBoostLevel()
+            << ", Speed: " << getSpeedLevel() << std::endl;
     }
     else {
         std::cout << "DEBUG: No shop upgrades file found, using defaults" << std::endl;
-        // Сбрасываем уровни до 0
         for (auto& upgrade : upgrades) {
             upgrade.currentLevel = 0;
         }
@@ -415,13 +419,14 @@ void ShopMenu::saveUpgrades() {
         std::cout << "ERROR: Could not save shop upgrades!" << std::endl;
     }
 }
+
 void ShopMenu::applyUpgradesImmediately() {
     m_upgradesChanged = true;
     std::cout << "DEBUG: Upgrades marked as changed - need immediate application" << std::endl;
-    std::cout << "DEBUG: Current levels - Fuel: " << upgrades[0].currentLevel
-        << ", Boost: " << upgrades[1].currentLevel
-        << ", Speed: " << upgrades[2].currentLevel << std::endl;
-}   
+    std::cout << "DEBUG: Current levels - Fuel: " << getFuelLevel()
+        << ", Boost: " << getBoostLevel()
+        << ", Speed: " << getSpeedLevel() << std::endl;
+}
 
 void ShopMenu::resetUpgrades() {
     std::cout << "DEBUG: Resetting all shop upgrades to 0" << std::endl;
@@ -430,6 +435,6 @@ void ShopMenu::resetUpgrades() {
             << upgrade.currentLevel << " to 0" << std::endl;
         upgrade.currentLevel = 0;
     }
-    saveUpgrades(); // Сохраняем сброшенное состояние
+    saveUpgrades();
     std::cout << "DEBUG: All shop upgrades reset to 0 and saved" << std::endl;
 }

@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "MenuController.h"
 #include "SettingsMenu.h"
+#include "LevelMenu.h"
 #include "ShopMenu.h"
 #include <vector>
 #include <string>
@@ -12,10 +13,11 @@ using namespace std;
 
 class GameMenu {
 public:
-    GameMenu(RenderWindow& gameWindow, AudioManager& audioManager, int& goldRef, ShopMenu& shopMenu)
+    GameMenu(RenderWindow& gameWindow, AudioManager& audioManager, int& goldRef, ShopMenu& shopMenu, LevelMenu& levelMenu)
         : gameWindow(gameWindow)
         , menuController(5)
         , settingsMenu(gameWindow, audioManager)
+        , levelMenu(levelMenu)
         , shopMenu(shopMenu)
         , totalGoldRef(goldRef)
         , isMenuActive(true)
@@ -56,6 +58,8 @@ public:
     void clearResetGoldRequest() { resetGoldRequested = false; }
     void resetGold() { resetGoldRequested = true; }
 
+    bool isLevelSelectActive() const { return levelMenu.isActive(); }
+    LevelMenu& getLevelMenu() { return levelMenu; }
     bool isSettingsActive() const { return settingsMenu.isActive(); }
     SettingsMenu& getSettingsMenu() { return settingsMenu; }
 
@@ -75,6 +79,7 @@ private:
 
     MenuController menuController;
     SettingsMenu settingsMenu;
+    LevelMenu& levelMenu;
     ShopMenu shopMenu;
 
     Color normalColor;

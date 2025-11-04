@@ -79,15 +79,19 @@ public:
     bool isGameOver() const { return m_gameStatus == GameStatus::GameOver; }
     bool isGameWon() const { return m_gameStatus == GameStatus::GameWon; }
     bool isPlaying() const { return m_gameStatus == GameStatus::Playing; }
+    bool isTargetSet() const { return targetDistance > 0; }
 
     void setPaused(bool paused) { m_gameStatus = paused ? GameStatus::Paused : GameStatus::Playing; }
     void setGameOver() { m_gameStatus = GameStatus::GameOver; }
     void setGameWon() { m_gameStatus = GameStatus::GameWon; }
     void resetDistance() {
         playerDist = 0;
+        targetDistance = 0;
         updateDistText();
         cout << "DEBUG: Distance reset to " << playerDist << endl;
     }
+    void setTargetDistance(int distance) { targetDistance = distance; }
+    int getTargetDistance() const { return targetDistance; }
 
     void restartGame() {
         m_gameStatus = GameStatus::Playing;
@@ -95,10 +99,24 @@ public:
         playerFuel = getMaxFuel();
         playerGold = 0;
         playerDist = 0;
+        targetDistance = 0;
         updateSpeedText();
         updateFuelText();
         updateDistText();
         updateGoldText();
+    }
+    void resetAll() {
+        m_gameStatus = GameStatus::Playing;
+        totalGold = 0;           
+        playerGold = 0;
+        playerDist = 0;
+        targetDistance = 0;
+        playerFuel = getMaxFuel();
+        saveGold();                
+        updateGoldText();
+        updateDistText();
+        updateFuelText();
+        cout << "DEBUG: GameState completely reset" << endl;
     }
 
     GameStatus getGameStatus() const { return m_gameStatus; }
@@ -128,6 +146,7 @@ private:
     int MaxPlayerBoostFuel;
     int playerFuel;       // Топливо 
     int playerDist;       // Расстояние
+    int targetDistance;   // Расстояние для победы
     int playerGold;       // Золото
     int totalGold;        // Общее золото за все время
     bool boostActive = false;

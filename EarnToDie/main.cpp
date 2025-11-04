@@ -15,6 +15,7 @@
 #include "PauseMenu.h"
 #include "AudioManager.h"
 #include "SettingsMenu.h"
+#include "LevelMenu.h"
 #include <vector>
 #include <ctime>
 #include <memory>
@@ -23,15 +24,19 @@
 using namespace sf;
 using namespace std;
 
-void resetGame(GameState& gameState, vector<unique_ptr<EnemyController>>& enemies, vector<unique_ptr<ObjectController>>& subjects, EntityController& controller,
+void resetGame(GameState& gameState, ShopMenu& shopMenu, vector<unique_ptr<EnemyController>>& enemies, vector<unique_ptr<ObjectController>>& subjects, EntityController& controller,
     float& enemySpawnTimer, float& subjectSpawnTimer) {
     cout << "DEBUG: resetGame called" << endl;
+    shopMenu.loadUpgrades();
     gameState.restartGame();
     gameState.resetDistance();
     enemies.clear();
     subjects.clear();
     enemySpawnTimer = 0.0f;
     subjectSpawnTimer = 0.0f;
+
+    controller.applyShopUpgrades();
+    gameState.applyShopUpgrades();
 }
 
 void handlePauseMode(PauseMenu& pauseMenu, GameState& gameState, EntityController& controller,
@@ -71,7 +76,7 @@ void handlePauseMode(PauseMenu& pauseMenu, GameState& gameState, EntityControlle
     }
 }
 
-void handleFinalGameWindow(FinalGameWindow& finalWindow, GameMenu& menu, GameState& gameState,
+void handleFinalGameWindow(FinalGameWindow& finalWindow, GameMenu& menu, GameState& gameState, ShopMenu& shopMenu,
     vector<unique_ptr<EnemyController>>& enemies, vector<unique_ptr<ObjectController>>& subjects,
     EntityController& controller, float& enemySpawnTimer, float& subjectSpawnTimer, RenderWindow& window) {
     finalWindow.update();
@@ -83,12 +88,12 @@ void handleFinalGameWindow(FinalGameWindow& finalWindow, GameMenu& menu, GameSta
         switch (action) {
         case FinalGameWindow::RESTART_GAME:
             cout << "Restarting game from final window..." << endl;
-            resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
+            resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
             break;
         case FinalGameWindow::MAIN_MENU:
             cout << "Returning to main menu from final window..." << endl;
             menu.setActive(true);
-            resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
+            resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
             break;
         case FinalGameWindow::EXIT_GAME:
             cout << "Exiting game from final window..." << endl;
@@ -106,10 +111,11 @@ int main()
     window.setVerticalSyncEnabled(false);
 
     GameState gameState;
+    AudioManager audioManager;
+    LevelMenu levelMenu(window, audioManager);
     ShopMenu shopMenu(window, gameState.getTotalGoldRef());
     EntityController controller(gameState, &shopMenu);
     gameState.setShopMenu(&shopMenu);
-    AudioManager audioManager;
     FinalGameWindow finalWindow(window);
 
     gameState.loadGold();
@@ -117,7 +123,7 @@ int main()
     controller.applyShopUpgrades();
     gameState.applyShopUpgrades();
 
-    GameMenu menu(window, audioManager, gameState.getTotalGoldRef(), shopMenu);
+    GameMenu menu(window, audioManager, gameState.getTotalGoldRef(), shopMenu, levelMenu);
     PauseMenu pauseMenu(window, audioManager);
     SettingsMenu settingsMenu(window, audioManager);
 
@@ -171,44 +177,83 @@ int main()
     gameState.loadGold();
 
     while (window.isOpen()) {
-        // Главное меню
-        if (menu.isActive() || menu.isSettingsActive() || menu.isShopActive()) {
-            menu.update();
-            menu.render();
+        // Главное меню и подменю
+        if (menu.isActive() || menu.isSettingsActive() || menu.isShopActive() || levelMenu.isActive()) {
+            if (levelMenu.isActive()) {
+                levelMenu.update();
+                levelMenu.render();
 
-            if (!menu.isShopActive() && shopMenu.isActiveState()) {
-                shopMenu.setActive(false);
+                // Проверяем выбор уровня
+                int selectedLevel = levelMenu.getSelectedLevel();
+                if (selectedLevel > 0) {
+                    cout << "Starting level " << selectedLevel << "..." << endl;
+                    resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
 
-                controller.applyShopUpgrades();
-                gameState.applyShopUpgrades();
-
-                std::cout << "=== AFTER SHOP EXIT ===" << std::endl;
+                    // Устанавливаем целевое расстояние в зависимости от уровня
+                    switch (selectedLevel) {
+                    case 1:
+                        gameState.setTargetDistance(150);
+                        break;
+                    case 2:
+                        gameState.setTargetDistance(300);
+                        break;
+                    case 3:
+                        gameState.setTargetDistance(500);
+                        break;
+                    case 4:
+                        gameState.setTargetDistance(700);
+                        break;
+                    case 5:
+                        gameState.setTargetDistance(1000);
+                        break;
+                    }
+                    levelMenu.setActive(false);
+                    levelMenu.resetSelection();
+                }
+                else if (selectedLevel == 0 && !levelMenu.isActive()) {
+                    // Пользователь вернулся в главное меню
+                    menu.setActive(true);
+                }
+                continue;
             }
-            if (!menu.isActive() && menu.getMenuResult() == MenuItems::START_GAME) {
-                resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
+            else {
+                // Обработка главного меню и других подменю
+                menu.update();
+                menu.render();
 
-                shopMenu.loadUpgrades();
-                controller.applyShopUpgrades();
-                gameState.applyShopUpgrades();
+                if (!menu.isShopActive() && shopMenu.isActiveState()) {
+                    shopMenu.setActive(false);
+                    std::cout << "=== SHOP CLOSED ===" << std::endl;
+                    shopMenu.loadUpgrades();
+                    controller.applyShopUpgrades();
+                    gameState.applyShopUpgrades();
+                    std::cout << "=== UPGRADES APPLIED AFTER SHOP ===" << std::endl;
+                }
+
+                if (menu.isResetGoldRequested()) {
+                    menu.resetShopUpgrades();
+                    shopMenu.loadUpgrades();
+                    gameState.resetGold();
+                    controller.applyShopUpgrades();
+                    gameState.applyShopUpgrades();
+                    menu.clearResetGoldRequest();
+                }
+                continue;
             }
-            if (menu.isResetGoldRequested()) {
-                gameState.resetGold();
-                controller.applyShopUpgrades();
-                gameState.applyShopUpgrades();
-                menu.clearResetGoldRequest();
-            }
-            continue;
         }
+
+        // Final Game Window
         if (finalWindow.isActiveState()) {
-            handleFinalGameWindow(finalWindow, menu, gameState, enemies, subjects, controller,
+            handleFinalGameWindow(finalWindow, menu, gameState, shopMenu, enemies, subjects, controller,
                 enemySpawnTimer, subjectSpawnTimer, window);
             continue;
         }
 
+        // Возврат в главное меню
         if (controller.shouldReturnToMainMenu()) {
             controller.resetReturnToMainMenu();
             menu.setActive(true);
-            resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
+            resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
             continue;
         }
 
@@ -223,7 +268,6 @@ int main()
             // Обработка ESC для входа в паузу
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape) {
                 if (!pauseMenu.isActive() && gameState.isPlaying() && !controller.isGameFinal()) {
-                    // Включаем паузу через PauseMenu
                     pauseMenu.setGamePaused(true);
                     pauseMenu.setActive(true);
                     cout << "PAUSE: Game paused via PauseMenu" << endl;
@@ -238,7 +282,7 @@ int main()
 
         // Обработка рестарта игры
         if (controller.shouldRestartGame()) {
-            resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
+            resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
             controller.resetRestartFlag();
             controller.applyShopUpgrades();
             gameState.applyShopUpgrades();
@@ -252,18 +296,26 @@ int main()
             if (controller.shouldReturnToMainMenu()) {
                 controller.resetReturnToMainMenu();
                 menu.setActive(true);
-                resetGame(gameState, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
+                resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
                 continue;
             }
-
             continue;
+        }
+
+        // Проверка условий окончания игры
+        if (gameState.isGameWon()) {
+            // Проверяем, что цель действительно была установлена
+            if (gameState.isTargetSet()) {
+                finalWindow.setActive(true, 1); // 1 = победа
+                continue;
+            }
+            else {
+                cout << "WARNING: Game won but no target was set! Resetting..." << endl;
+                gameState.restartGame(); // Перезапускаем игру
+            }
         }
         if (gameState.isGameOver()) {
             finalWindow.setActive(true, 0); // 0 = поражение
-            continue;
-        }
-        if (gameState.isGameWon()) {
-            finalWindow.setActive(true, 1); // 1 = победа
             continue;
         }
         if (controller.isGameFinal()) {
@@ -283,6 +335,7 @@ int main()
                 shopMenu.clearUpgradesChanged();
                 std::cout << "=== MAIN: UPGRADES APPLIED ===" << std::endl;
             }
+
             float deltaTime = gameClock.restart().asSeconds();
             float scaledDeltaTime = deltaTime * controller.getGameSpeed();
             speed = controller.getGameSpeed();
@@ -296,13 +349,12 @@ int main()
             }
 
             float movement = backgroundSpeed * scaledDeltaTime;
-
             backgroundY1 += movement;
             backgroundY2 += movement;
 
             distanceTimer += deltaTime;
             if (distanceTimer >= 1.0f) {
-                int dist = static_cast<int>(speed);
+                int dist = static_cast<int>(speed * 3);
                 distanceTimer = 0.0f;
                 gameState.decreaseDist(dist);
 
@@ -325,8 +377,8 @@ int main()
             enemySpawnTimer += scaledDeltaTime;
             subjectSpawnTimer += scaledDeltaTime;
 
-            subjectSpawner.update(speed);
-            enemySpawner.update(speed);
+            subjectSpawner.update();
+            enemySpawner.update();
 
             // Обновление врагов
             for (auto it = enemies.begin(); it != enemies.end();) {
