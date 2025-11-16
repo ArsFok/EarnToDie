@@ -1,4 +1,4 @@
-#include <SFML/Graphics.hpp>
+п»ї#include <SFML/Graphics.hpp>
 #include "EntityController.h"
 #include "const.h"
 #include "EnemyController.h"
@@ -16,6 +16,7 @@
 #include "AudioManager.h"
 #include "SettingsMenu.h"
 #include "LevelMenu.h"
+#include "FrameVideo.h"
 #include <vector>
 #include <ctime>
 #include <memory>
@@ -25,8 +26,8 @@ using namespace sf;
 using namespace std;
 
 void resetGame(GameState& gameState, ShopMenu& shopMenu, vector<unique_ptr<EnemyController>>& enemies, vector<unique_ptr<ObjectController>>& subjects, EntityController& controller,
-    float& enemySpawnTimer, float& subjectSpawnTimer) {
-    cout << "DEBUG: resetGame called" << endl;
+    float& enemySpawnTimer, float& subjectSpawnTimer, bool& isVideoPlaying, bool& videoFinished, FrameVideo& finalVideo, FrameVideo& gameOverVideo, int level) {
+    cout << "DEBUG: resetGame called for level " << level << endl;
     shopMenu.loadUpgrades();
     gameState.restartGame();
     gameState.resetDistance();
@@ -34,6 +35,31 @@ void resetGame(GameState& gameState, ShopMenu& shopMenu, vector<unique_ptr<Enemy
     subjects.clear();
     enemySpawnTimer = 0.0f;
     subjectSpawnTimer = 0.0f;
+    isVideoPlaying = false;
+    videoFinished = false;
+    finalVideo.restart();
+    gameOverVideo.restart();
+
+    if (level > 0) {
+        switch (level) {
+        case 1:
+            gameState.setTargetDistance(150);
+            break;
+        case 2:
+            gameState.setTargetDistance(300);
+            break;
+        case 3:
+            gameState.setTargetDistance(500);
+            break;
+        case 4:
+            gameState.setTargetDistance(700);
+            break;
+        case 5:
+            gameState.setTargetDistance(1000);
+            break;
+        }
+        cout << "Target distance set to: " << gameState.getTargetDistance() << " for level " << level << endl;
+    }
 
     controller.applyShopUpgrades();
     gameState.applyShopUpgrades();
@@ -78,7 +104,8 @@ void handlePauseMode(PauseMenu& pauseMenu, GameState& gameState, EntityControlle
 
 void handleFinalGameWindow(FinalGameWindow& finalWindow, GameMenu& menu, GameState& gameState, ShopMenu& shopMenu,
     vector<unique_ptr<EnemyController>>& enemies, vector<unique_ptr<ObjectController>>& subjects,
-    EntityController& controller, float& enemySpawnTimer, float& subjectSpawnTimer, RenderWindow& window) {
+    EntityController& controller, float& enemySpawnTimer, float& subjectSpawnTimer, RenderWindow& window,
+    bool& isVideoPlaying, bool& videoFinished, FrameVideo& finalVideo, FrameVideo& gameOverVideo, int currentLevel) {
     finalWindow.update();
     finalWindow.render();
     finalWindow.getWindow().display();
@@ -88,12 +115,12 @@ void handleFinalGameWindow(FinalGameWindow& finalWindow, GameMenu& menu, GameSta
         switch (action) {
         case FinalGameWindow::RESTART_GAME:
             cout << "Restarting game from final window..." << endl;
-            resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
+            resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, isVideoPlaying, videoFinished, finalVideo, gameOverVideo, currentLevel);
             break;
         case FinalGameWindow::MAIN_MENU:
             cout << "Returning to main menu from final window..." << endl;
             menu.setActive(true);
-            resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
+            resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, isVideoPlaying, videoFinished, finalVideo, gameOverVideo, currentLevel);
             break;
         case FinalGameWindow::EXIT_GAME:
             cout << "Exiting game from final window..." << endl;
@@ -118,6 +145,9 @@ int main()
     gameState.setShopMenu(&shopMenu);
     FinalGameWindow finalWindow(window);
 
+    FrameVideo finalVideo;
+    FrameVideo gameOverVideo;
+
     gameState.loadGold();
     shopMenu.loadUpgrades();
     controller.applyShopUpgrades();
@@ -139,6 +169,7 @@ int main()
     if (!backgroundTexture.loadFromFile("background.jpg")) {
         cout << "Failed to load background image!" << endl;
     }
+
     Sprite background1(backgroundTexture);
     Sprite background2(backgroundTexture);
 
@@ -156,6 +187,10 @@ int main()
     float backgroundY1 = 0.0f;
     float backgroundY2 = -static_cast<float>(WINDOW_HEIGHT);
 
+    bool isVideoPlaying = false;
+    bool videoFinished = false;
+    bool isWinVideo = false;
+
     vector<unique_ptr<EnemyController>> enemies;
     vector<unique_ptr<ObjectController>> subjects;
 
@@ -171,53 +206,36 @@ int main()
     float speed = 0;
     Clock gameClock;
 
+    int currentLevel = 0;
+
     SubjectSpawner subjectSpawner(subjectSpawnTimer, subjectSpawnRate, subjects, gameState, 1.5f);
     EnemySpawner enemySpawner(enemySpawnTimer, enemySpawnRate, enemies, gameState, 1.5f);
 
     gameState.loadGold();
 
     while (window.isOpen()) {
-        // Главное меню и подменю
+        // Р“Р»Р°РІРЅРѕРµ РјРµРЅСЋ Рё РїРѕРґРјРµРЅСЋ
         if (menu.isActive() || menu.isSettingsActive() || menu.isShopActive() || levelMenu.isActive()) {
             if (levelMenu.isActive()) {
                 levelMenu.update();
                 levelMenu.render();
 
-                // Проверяем выбор уровня
+                // РџСЂРѕРІРµСЂСЏРµРј РІС‹Р±РѕСЂ СѓСЂРѕРІРЅСЏ
                 int selectedLevel = levelMenu.getSelectedLevel();
                 if (selectedLevel > 0) {
                     cout << "Starting level " << selectedLevel << "..." << endl;
-                    resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
-
-                    // Устанавливаем целевое расстояние в зависимости от уровня
-                    switch (selectedLevel) {
-                    case 1:
-                        gameState.setTargetDistance(150);
-                        break;
-                    case 2:
-                        gameState.setTargetDistance(300);
-                        break;
-                    case 3:
-                        gameState.setTargetDistance(500);
-                        break;
-                    case 4:
-                        gameState.setTargetDistance(700);
-                        break;
-                    case 5:
-                        gameState.setTargetDistance(1000);
-                        break;
-                    }
+                    currentLevel = selectedLevel;
+                    resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, isVideoPlaying, videoFinished, finalVideo, gameOverVideo, currentLevel);
                     levelMenu.setActive(false);
                     levelMenu.resetSelection();
                 }
                 else if (selectedLevel == 0 && !levelMenu.isActive()) {
-                    // Пользователь вернулся в главное меню
                     menu.setActive(true);
                 }
                 continue;
             }
             else {
-                // Обработка главного меню и других подменю
+                // РћР±СЂР°Р±РѕС‚РєР° РіР»Р°РІРЅРѕРіРѕ РјРµРЅСЋ Рё РґСЂСѓРіРёС… РїРѕРґРјРµРЅСЋ
                 menu.update();
                 menu.render();
 
@@ -245,19 +263,53 @@ int main()
         // Final Game Window
         if (finalWindow.isActiveState()) {
             handleFinalGameWindow(finalWindow, menu, gameState, shopMenu, enemies, subjects, controller,
-                enemySpawnTimer, subjectSpawnTimer, window);
+                enemySpawnTimer, subjectSpawnTimer, window, isVideoPlaying, videoFinished, finalVideo, gameOverVideo, currentLevel);
             continue;
         }
 
-        // Возврат в главное меню
+        // Р’РѕР·РІСЂР°С‚ РІ РіР»Р°РІРЅРѕРµ РјРµРЅСЋ
         if (controller.shouldReturnToMainMenu()) {
             controller.resetReturnToMainMenu();
+            currentLevel = 0;
             menu.setActive(true);
-            resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
+            resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, isVideoPlaying, videoFinished, finalVideo, gameOverVideo, currentLevel);
             continue;
         }
 
-        // Обработка событий окна
+        // Р’РѕСЃРїСЂРѕРёР·РІРµРґРµРЅРёРµ РІРёРґРµРѕ (РїРѕР±РµРґС‹ РёР»Рё РїРѕСЂР°Р¶РµРЅРёСЏ)
+        if (isVideoPlaying) {
+            if (isWinVideo) {
+                finalVideo.update();
+            }
+            else {
+                gameOverVideo.update();
+            }
+
+            window.clear();
+            if (isWinVideo) {
+                finalVideo.draw(window);
+            }
+            else {
+                gameOverVideo.draw(window);
+            }
+            window.display();
+
+            bool videoFinished = false;
+            if (isWinVideo) {
+                videoFinished = finalVideo.isFinished();
+            }
+            else {
+                videoFinished = gameOverVideo.isFinished();
+            }
+
+            if (videoFinished) {
+                isVideoPlaying = false;
+                finalWindow.setActive(true, isWinVideo ? 1 : 0);
+            }
+            continue;
+        }
+
+        // РћР±СЂР°Р±РѕС‚РєР° СЃРѕР±С‹С‚РёР№ РѕРєРЅР°
         Event event;
         while (window.pollEvent(event)) {
             if (event.type == Event::Closed) {
@@ -265,9 +317,9 @@ int main()
                 break;
             }
 
-            // Обработка ESC для входа в паузу
+            // РћР±СЂР°Р±РѕС‚РєР° ESC РґР»СЏ РІС…РѕРґР° РІ РїР°СѓР·Сѓ
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape) {
-                if (!pauseMenu.isActive() && gameState.isPlaying() && !controller.isGameFinal()) {
+                if (!pauseMenu.isActive() && gameState.isPlaying() && !controller.isGameFinal() && !isVideoPlaying) {
                     pauseMenu.setGamePaused(true);
                     pauseMenu.setActive(true);
                     cout << "PAUSE: Game paused via PauseMenu" << endl;
@@ -275,59 +327,110 @@ int main()
             }
         }
 
-        // Синхронизация состояния паузы
+        // РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ СЃРѕСЃС‚РѕСЏРЅРёСЏ РїР°СѓР·С‹
         if (pauseMenu.isGamePaused() != gameState.isPaused()) {
             gameState.setPaused(pauseMenu.isGamePaused());
         }
 
-        // Обработка рестарта игры
+        // РћР±СЂР°Р±РѕС‚РєР° СЂРµСЃС‚Р°СЂС‚Р° РёРіСЂС‹
         if (controller.shouldRestartGame()) {
-            resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
+            resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, isVideoPlaying, videoFinished, finalVideo, gameOverVideo, currentLevel);
             controller.resetRestartFlag();
             controller.applyShopUpgrades();
             gameState.applyShopUpgrades();
         }
 
-        // Режим паузы
+        // Р РµР¶РёРј РїР°СѓР·С‹
         if (pauseMenu.isActive() || pauseMenu.isGamePaused() || pauseMenu.isSettingsActive()) {
             handlePauseMode(pauseMenu, gameState, controller, enemies, subjects, enemySpawnTimer, subjectSpawnTimer);
 
-            // Проверяем результат после выхода из режима паузы
+            // РџСЂРѕРІРµСЂСЏРµРј СЂРµР·СѓР»СЊС‚Р°С‚ РїРѕСЃР»Рµ РІС‹С…РѕРґР° РёР· СЂРµР¶РёРјР° РїР°СѓР·С‹
             if (controller.shouldReturnToMainMenu()) {
                 controller.resetReturnToMainMenu();
                 menu.setActive(true);
-                resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer);
+                resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, isVideoPlaying, videoFinished, finalVideo, gameOverVideo, currentLevel);
                 continue;
             }
             continue;
         }
 
-        // Проверка условий окончания игры
+        //РџРћР‘Р•Р”Рђ
         if (gameState.isGameWon()) {
-            // Проверяем, что цель действительно была установлена
+            // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ С†РµР»СЊ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ Р±С‹Р»Р° СѓСЃС‚Р°РЅРѕРІР»РµРЅР°
             if (gameState.isTargetSet()) {
-                finalWindow.setActive(true, 1); // 1 = победа
+                // Р—Р°РїСѓСЃРєР°РµРј РІРёРґРµРѕ РїРѕР±РµРґС‹
+                if (!isVideoPlaying) {
+                    if (finalVideo.loadFinishBackground("assets/video/GameWon", 1, 17)) {
+                        finalVideo.setFPS(5);
+                        finalVideo.setLooping(false);
+                        isVideoPlaying = true;
+                        isWinVideo = true;
+                        cout << "=== WIN VIDEO STARTED ===" << endl;
+                    }
+                    else {
+                        cout << "Failed to load win video, showing final menu directly" << endl;
+                        finalWindow.setActive(true, 1);
+                    }
+                }
                 continue;
             }
-            else {
-                cout << "WARNING: Game won but no target was set! Resetting..." << endl;
-                gameState.restartGame(); // Перезапускаем игру
-            }
         }
+
+        //РџРћР РђР–Р•РќРР•
         if (gameState.isGameOver()) {
-            finalWindow.setActive(true, 0); // 0 = поражение
+            // Р—Р°РїСѓСЃРєР°РµРј РІРёРґРµРѕ РїРѕСЂР°Р¶РµРЅРёСЏ
+            if (!isVideoPlaying) {
+                if (gameOverVideo.loadFinishBackground("assets/video/GameOver", 1, 9)) {
+                    gameOverVideo.setFPS(5);
+                    gameOverVideo.setLooping(false);
+                    isVideoPlaying = true;
+                    isWinVideo = false;
+                    cout << "=== GAME OVER VIDEO STARTED ===" << endl;
+                }
+                else {
+                    cout << "Failed to load game over video, showing final menu directly" << endl;
+                    finalWindow.setActive(true, 0);
+                }
+            }
             continue;
         }
+
         if (controller.isGameFinal()) {
             bool playerWon = controller.hasPlayerWon();
-            finalWindow.setActive(true, playerWon ? 1 : 0);
+            if (playerWon && !isVideoPlaying) {
+                // Р—Р°РїСѓСЃРєР°РµРј РІРёРґРµРѕ РґР»СЏ РїРѕР±РµРґС‹
+                if (finalVideo.loadFinishBackground("assets/video/GameWon", 1, 60)) {
+                    finalVideo.setFPS(5);
+                    finalVideo.setLooping(false);
+                    isVideoPlaying = true;
+                    isWinVideo = true;
+                    cout << "=== FINAL VIDEO STARTED (controller) ===" << endl;
+                }
+                else {
+                    finalWindow.setActive(true, 1);
+                }
+            }
+            else if (!playerWon && !isVideoPlaying) {
+                // Р—Р°РїСѓСЃРєР°РµРј РІРёРґРµРѕ РґР»СЏ РїРѕСЂР°Р¶РµРЅРёСЏ
+                if (gameOverVideo.loadFinishBackground("assets/video/GameOver", 1, 9)) {
+                    gameOverVideo.setFPS(1);
+                    gameOverVideo.setLooping(false);
+                    isVideoPlaying = true;
+                    isWinVideo = false;
+                    cout << "=== GAME OVER VIDEO STARTED (controller) ===" << endl;
+                }
+                else {
+                    finalWindow.setActive(true, 0);
+                }
+            }
+            else {
+                finalWindow.setActive(true, playerWon ? 1 : 0);
+            }
             continue;
         }
 
         window.clear();
-
-        // Основная игровая логика (только когда игра не на паузе)
-        if (gameState.isPlaying() && !pauseMenu.isGamePaused() && !controller.isGameFinal()) {
+        if (gameState.isPlaying() && !pauseMenu.isGamePaused() && !controller.isGameFinal() && !isVideoPlaying) {
             if (shopMenu.haveUpgradesChanged()) {
                 std::cout << "=== MAIN: APPLYING UPGRADES ===" << std::endl;
                 controller.applyShopUpgrades();
@@ -337,8 +440,11 @@ int main()
             }
 
             float deltaTime = gameClock.restart().asSeconds();
-            float scaledDeltaTime = deltaTime * controller.getGameSpeed();
-            speed = controller.getGameSpeed();
+
+            gameState.updateSlowEffect();
+            float speedMultiplier = gameState.getSpeedMultiplier();
+            float scaledDeltaTime = deltaTime * controller.getGameSpeed() * speedMultiplier;
+            speed = controller.getGameSpeed() * speedMultiplier;
             gameState.decreaseSpeed(speed);
 
             fuelTimer += deltaTime;
@@ -362,6 +468,12 @@ int main()
                     enemySpawner.setSpawnRate(0.5f);
                     enemySpawner.setSpeedMultiplier(2.0f);
                 }
+
+                // РџСЂРѕРІРµСЂРєР° РґРѕСЃС‚РёР¶РµРЅРёСЏ С†РµР»РµРІРѕР№ РґРёСЃС‚Р°РЅС†РёРё РґР»СЏ Р·Р°РїСѓСЃРєР° РІРёРґРµРѕ
+                if (gameState.isTargetSet() && gameState.getPlayerDist() >= gameState.getTargetDistance()) {
+                    gameState.setGameWon();
+                    continue;
+                }
             }
 
             if (backgroundY1 >= WINDOW_HEIGHT) {
@@ -380,16 +492,30 @@ int main()
             subjectSpawner.update();
             enemySpawner.update();
 
-            // Обновление врагов
+            // РћР±РЅРѕРІР»РµРЅРёРµ РІСЂР°РіРѕРІ
             for (auto it = enemies.begin(); it != enemies.end();) {
                 bool shouldRemove = (*it)->update();
 
-                if (!shouldRemove && (*it)->getEnemy()->checkCollision(controller.getEntity()->shape)) {
-                    gameState.addGold(10);
-                    it = enemies.erase(it);
-                    continue;
+                if ((*it)->getEnemy()->checkCollision(controller.getEntity()->shape)) {
+                    std::cout << "DEBUG: COLLISION DETECTED!" << std::endl;
+                    if (!(*it)->isDead() && !(*it)->isKnockback()) {
+                        std::cout << "DEBUG: Applying knockback to enemy" << std::endl;
+                        sf::Vector2f playerPos = controller.getEntity()->shape.getPosition();
+                        sf::Vector2f zombiePos = (*it)->getEnemy()->getPosition();
+                        sf::Vector2f knockbackDir = zombiePos - playerPos;
+
+                        float length = std::sqrt(knockbackDir.x * knockbackDir.x + knockbackDir.y * knockbackDir.y);
+                        if (length > 0) {
+                            knockbackDir /= length;
+                        }
+                        (*it)->applyKnockback(knockbackDir, 6.0f, 1.5f);
+                        (*it)->takeDamage();
+                        gameState.applySlowEffect(2.0f, 0.3f);
+                        gameState.addGold(10);
+                    }
                 }
-                if (shouldRemove) {
+                else if (shouldRemove) {
+                    std::cout << "DEBUG: Removing enemy (marked for removal)" << std::endl;
                     it = enemies.erase(it);
                 }
                 else {
@@ -397,7 +523,7 @@ int main()
                 }
             }
 
-            // Обновление объектов
+            // РћР±РЅРѕРІР»РµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ
             for (auto it = subjects.begin(); it != subjects.end();) {
                 bool shouldRemove = (*it)->update();
 
@@ -410,7 +536,7 @@ int main()
             }
         }
 
-        // Отрисовка
+        // РћС‚СЂРёСЃРѕРІРєР° РіРµР№РјРїР»РµСЏ
         window.draw(background1);
         window.draw(background2);
 
@@ -423,6 +549,7 @@ int main()
 
         gameState.draw(window);
         controller.update(window);
+        gameState.drawSlowEffect(window);
 
         window.display();
     }

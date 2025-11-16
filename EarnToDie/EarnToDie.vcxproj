@@ -108,7 +108,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)dependenies\SFML-2.6.1\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-audio-d.lib;sfml-system-d.lib;sfml-network-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -138,13 +138,14 @@
     <ClCompile Include="LevelMenu.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuController.cpp" />
-    <ClCompile Include="MovingObject.cpp" />
     <ClCompile Include="ObjectController.cpp" />
     <ClCompile Include="PauseMenu.cpp" />
     <ClCompile Include="RectObject.cpp" />
     <ClCompile Include="SettingsMenu.cpp" />
     <ClCompile Include="ShopMenu.cpp" />
+    <ClCompile Include="SlowEffect.cpp" />
     <ClCompile Include="StaticObject.cpp" />
+    <ClCompile Include="ZombieState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioManager.h" />
@@ -155,6 +156,7 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityController.h" />
     <ClInclude Include="FinalGameWindow.h" />
+    <ClInclude Include="FrameVideo.h" />
     <ClInclude Include="GameMenu.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameState.h" />
@@ -167,8 +169,10 @@
     <ClInclude Include="RectObject.h" />
     <ClInclude Include="SettingsMenu.h" />
     <ClInclude Include="ShopMenu.h" />
+    <ClInclude Include="SlowEffect.h" />
     <ClInclude Include="StaticObject.h" />
     <ClInclude Include="SubjectSpawner.h" />
+    <ClInclude Include="ZombieState.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="background.jpg" />

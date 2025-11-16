@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include "const.h"
+#include "SlowEffect.h"
 
 using namespace sf;
 using namespace std;
@@ -139,6 +140,15 @@ public:
     void applyShopUpgrades();
     int getMaxFuel() const;
 
+    void applySlowEffect(float duration, float factor);
+    float getSpeedMultiplier() const;
+    bool isSlowed() const;
+    float getSlowRemainingTime() const;
+    void updateSlowEffect();
+
+    void drawSlowEffect(sf::RenderWindow& window) {
+        slowEffect.draw(window);
+    }
 
 private:
     float playerSpeed;    // Скорость  
@@ -152,6 +162,7 @@ private:
     bool boostActive = false;
 
     GameStatus m_gameStatus;
+    SlowEffect slowEffect;
     ShopMenu* m_shopMenu;
 
     Font font;

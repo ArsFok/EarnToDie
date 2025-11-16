@@ -78,9 +78,9 @@ int GameState::getMaxFuel() const {
 }
 
 void GameState::decreaseFuel(int fuel) {
-	playerFuel -= fuel;
+	playerFuel -= fuel * 3;
 	if (playerFuel <= 0) {
-		setGameOver();
+		setGameOver();	
 	}
 	cout << "[decreaseFUEL:]" << playerFuel << endl;
 	updateFuelText();
@@ -186,4 +186,23 @@ void GameState::resetGold() {
 	updateGoldText();
 	saveGold();
 	cout << "Gold reset to 0" << endl;
+}
+void GameState::applySlowEffect(float duration, float factor) {
+	slowEffect.activate(duration, factor);
+}
+
+float GameState::getSpeedMultiplier() const {
+	return slowEffect.isActive() ? slowEffect.getSlowFactor() : 1.0f;
+}
+
+bool GameState::isSlowed() const {
+	return slowEffect.isActive();
+}
+
+float GameState::getSlowRemainingTime() const {
+	return slowEffect.getRemainingTime();
+}
+
+void GameState::updateSlowEffect() {
+	slowEffect.update();
 }
