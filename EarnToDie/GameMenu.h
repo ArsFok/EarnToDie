@@ -16,6 +16,7 @@ public:
     GameMenu(RenderWindow& gameWindow, AudioManager& audioManager, int& goldRef, ShopMenu& shopMenu, LevelMenu& levelMenu)
         : gameWindow(gameWindow)
         , menuController(5)
+        , audioManager(audioManager)
         , settingsMenu(gameWindow, audioManager)
         , levelMenu(levelMenu)
         , shopMenu(shopMenu)
@@ -79,6 +80,7 @@ private:
 
     MenuController menuController;
     SettingsMenu settingsMenu;
+    AudioManager& audioManager;
     LevelMenu& levelMenu;
     ShopMenu shopMenu;
 
@@ -95,7 +97,7 @@ private:
 
     int previousSelectedIndex = -1;
 
-    vector<RectangleShape> buttons; 
+    vector<RectangleShape> buttons;
     Color buttonColor;
     Color buttonOutlineColor;
 

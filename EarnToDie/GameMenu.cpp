@@ -1,4 +1,4 @@
-#include "GameMenu.h"
+п»ї#include "GameMenu.h"
 #include "GameState.h"
 #include <iostream>
 #include "const.h"
@@ -44,7 +44,7 @@ void GameMenu::initializeMenuItems() {
 
     menuController.setMenuItemsCount(menuTexts.size());
 
-    float startY = 250; // Начальная позиция Y
+    float startY = 250; // ГЌГ Г·Г Г«ГјГ­Г Гї ГЇГ®Г§ГЁГ¶ГЁГї Y
 
     for (size_t i = 0; i < menuTexts.size(); ++i) {
         Text text;
@@ -63,7 +63,7 @@ void GameMenu::initializeMenuItems() {
 }
 
 void GameMenu::initializeButtons() {
-    float startY = 250; // Такая же начальная позиция как у текста
+    float startY = 250; // Г’Г ГЄГ Гї Г¦ГҐ Г­Г Г·Г Г«ГјГ­Г Гї ГЇГ®Г§ГЁГ¶ГЁГї ГЄГ ГЄ Гі ГІГҐГЄГ±ГІГ 
 
     for (size_t i = 0; i < menuItems.size(); ++i) {
         RectangleShape button(Vector2f(BUTTON_WIDTH, BUTTON_HEIGHT));
@@ -159,7 +159,7 @@ void GameMenu::handleEvents() {
             break;
 
         case Event::MouseMoved:
-            // Обработка hover эффекта мышью для кнопок
+            // ГЋГЎГ°Г ГЎГ®ГІГЄГ  hover ГЅГґГґГҐГЄГІГ  Г¬Г»ГёГјГѕ Г¤Г«Гї ГЄГ­Г®ГЇГ®ГЄ
             for (size_t i = 0; i < buttons.size(); ++i) {
                 FloatRect bounds = buttons[i].getGlobalBounds();
                 if (bounds.contains(static_cast<float>(event.mouseMove.x),
@@ -224,11 +224,11 @@ void GameMenu::render() {
     gameWindow.clear(backgroundColor);
 
     RectangleShape backgroundOverlay(Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
-    backgroundOverlay.setFillColor(Color(0, 0, 0, 150)); // Сделаем оверлей немного прозрачнее
+    backgroundOverlay.setFillColor(Color(0, 0, 0, 150)); // Г‘Г¤ГҐГ«Г ГҐГ¬ Г®ГўГҐГ°Г«ГҐГ© Г­ГҐГ¬Г­Г®ГЈГ® ГЇГ°Г®Г§Г°Г Г·Г­ГҐГҐ
     gameWindow.draw(background);
     gameWindow.draw(backgroundOverlay);
 
-    // Заголовок игры
+    // Г‡Г ГЈГ®Г«Г®ГўГ®ГЄ ГЁГЈГ°Г»
     Text title;
     title.setFont(font);
     title.setString("EARN TO DIE");
@@ -243,7 +243,7 @@ void GameMenu::render() {
 
     gameWindow.draw(title);
 
-    // Подзаголовок
+    // ГЏГ®Г¤Г§Г ГЈГ®Г«Г®ГўГ®ГЄ
     Text subtitle;
     subtitle.setFont(font);
     subtitle.setString("Autor: MrArs_Fok");
@@ -257,27 +257,27 @@ void GameMenu::render() {
 
     gameWindow.draw(subtitle);
 
-    // Рисуем кнопки
+    // ГђГЁГ±ГіГҐГ¬ ГЄГ­Г®ГЇГЄГЁ
     for (const auto& button : buttons) {
         gameWindow.draw(button);
     }
 
-    // Рисуем текст на кнопках
+    // ГђГЁГ±ГіГҐГ¬ ГІГҐГЄГ±ГІ Г­Г  ГЄГ­Г®ГЇГЄГ Гµ
     for (const auto& item : menuItems) {
         gameWindow.draw(item);
     }
 
-    // Подсказки управления
+    // ГЏГ®Г¤Г±ГЄГ Г§ГЄГЁ ГіГЇГ°Г ГўГ«ГҐГ­ГЁГї
     Text controlsHint;
     controlsHint.setFont(font);
     controlsHint.setString("Use ARROW KEYS to navigate, ENTER to select");
     controlsHint.setCharacterSize(14);
-    controlsHint.setFillColor(Color(200, 200, 200)); // Сделаем светлее для лучшей видимости
+    controlsHint.setFillColor(Color(200, 200, 200)); // Г‘Г¤ГҐГ«Г ГҐГ¬ Г±ГўГҐГІГ«ГҐГҐ Г¤Г«Гї Г«ГіГ·ГёГҐГ© ГўГЁГ¤ГЁГ¬Г®Г±ГІГЁ
     controlsHint.setPosition(20, WINDOW_HEIGHT - 35);
 
     gameWindow.draw(controlsHint);
 
-    // Вывод всего золота
+    // Г‚Г»ГўГ®Г¤ ГўГ±ГҐГЈГ® Г§Г®Г«Г®ГІГ 
     Text totalGolds;
     totalGolds.setFont(font);
     totalGolds.setString("TotalGold:" + std::to_string(totalGoldRef));
@@ -287,7 +287,7 @@ void GameMenu::render() {
 
     gameWindow.draw(totalGolds);
 
-    // Текущий выбор
+    // Г’ГҐГЄГіГ№ГЁГ© ГўГ»ГЎГ®Г°
     Text selectionHint;
     selectionHint.setFont(font);
     selectionHint.setString("Selected: " + menuItems[menuController.getSelectedIndex()].getString());
@@ -303,7 +303,7 @@ void GameMenu::render() {
 void GameMenu::updateMenuVisuals() {
     int selectedIndex = menuController.getSelectedIndex();
 
-    // Выводим только если индекс изменился
+    // Г‚Г»ГўГ®Г¤ГЁГ¬ ГІГ®Г«ГјГЄГ® ГҐГ±Г«ГЁ ГЁГ­Г¤ГҐГЄГ± ГЁГ§Г¬ГҐГ­ГЁГ«Г±Гї
     if (selectedIndex != previousSelectedIndex) {
         std::cout << "=== SELECTION CHANGED ===" << std::endl;
         std::cout << "Previous: " << previousSelectedIndex << " -> New: " << selectedIndex << std::endl;
@@ -315,23 +315,23 @@ void GameMenu::updateMenuVisuals() {
         if (i >= buttons.size()) continue;
 
         if (i == selectedIndex) {
-            // Подсветка выбранной кнопки
+            // ГЏГ®Г¤Г±ГўГҐГІГЄГ  ГўГ»ГЎГ°Г Г­Г­Г®Г© ГЄГ­Г®ГЇГЄГЁ
             buttons[i].setFillColor(Color(100, 100, 100, 200));
             buttons[i].setOutlineColor(selectedColor);
             buttons[i].setOutlineThickness(3.0f);
 
-            // Подсветка текста
+            // ГЏГ®Г¤Г±ГўГҐГІГЄГ  ГІГҐГЄГ±ГІГ 
             menuItems[i].setFillColor(selectedColor);
             menuItems[i].setStyle(sf::Text::Bold);
             menuItems[i].setScale(1.03f, 1.03f);
         }
         else {
-            // Обычное состояние кнопки
+            // ГЋГЎГ»Г·Г­Г®ГҐ Г±Г®Г±ГІГ®ГїГ­ГЁГҐ ГЄГ­Г®ГЇГЄГЁ
             buttons[i].setFillColor(buttonColor);
             buttons[i].setOutlineColor(buttonOutlineColor);
             buttons[i].setOutlineThickness(2.0f);
 
-            // Обычное состояние текста
+            // ГЋГЎГ»Г·Г­Г®ГҐ Г±Г®Г±ГІГ®ГїГ­ГЁГҐ ГІГҐГЄГ±ГІГ 
             menuItems[i].setFillColor(normalColor);
             menuItems[i].setStyle(sf::Text::Regular);
             menuItems[i].setScale(1.0f, 1.0f);
@@ -345,6 +345,9 @@ void GameMenu::handleMenuSelection(int selectedIndex) {
     std::cout << "Menu item: " << menuItems[selectedIndex].getString().toAnsiString() << std::endl;
     cout << "BEFORE - GameMenu: " << isMenuActive << ", LevelMenu: " << levelMenu.isActive() << endl;
 
+    if (audioManager.isSoundLoaded("click")) {
+        audioManager.playSound("click");
+    }
     switch (selectedIndex) {
     case MenuItems::START_GAME:
         std::cout << "ACTION: Opening level selection..." << std::endl;
@@ -407,7 +410,7 @@ void GameMenu::initializeConfirmationDialog() {
         textRect.top + textRect.height / 2.0f);
     confirmationText.setPosition(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 40);
 
-    // Кнопка YES 
+    // ГЉГ­Г®ГЇГЄГ  YES 
     yesText.setFont(font);
     yesText.setString("YES");
     yesText.setCharacterSize(24);
@@ -418,7 +421,7 @@ void GameMenu::initializeConfirmationDialog() {
         yesRect.top + yesRect.height / 2.0f);
     yesText.setPosition(WINDOW_WIDTH / 2 - 90, WINDOW_HEIGHT / 2 + 50);
 
-    // Кнопка NO 
+    // ГЉГ­Г®ГЇГЄГ  NO 
     noText.setFont(font);
     noText.setString("NO");
     noText.setCharacterSize(24);
@@ -447,7 +450,7 @@ void GameMenu::handleConfirmationEvents(Event& event) {
         case Keyboard::Enter:
         case Keyboard::Space:
             if (yesSelected) {
-                // Подтвердили новую игру
+                // ГЏГ®Г¤ГІГўГҐГ°Г¤ГЁГ«ГЁ Г­Г®ГўГіГѕ ГЁГЈГ°Гі
                 if (waitingForNewGameConfirmation) {
 
                     resetGoldRequested = true;
@@ -496,7 +499,7 @@ void GameMenu::handleConfirmationEvents(Event& event) {
 
             if (yesBounds.contains(static_cast<float>(event.mouseButton.x),
                 static_cast<float>(event.mouseButton.y))) {
-                // Подтвердили новую игру
+                // ГЏГ®Г¤ГІГўГҐГ°Г¤ГЁГ«ГЁ Г­Г®ГўГіГѕ ГЁГЈГ°Гі
                 if (waitingForNewGameConfirmation) {
                     resetGoldRequested = true;
 
@@ -540,12 +543,12 @@ void GameMenu::updateConfirmationVisuals() {
 void GameMenu::renderConfirmationDialog() {
     if (!confirmationActive) return;
 
-    // Полупрозрачный фон
+    // ГЏГ®Г«ГіГЇГ°Г®Г§Г°Г Г·Г­Г»Г© ГґГ®Г­
     RectangleShape overlay(Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
     overlay.setFillColor(Color(0, 0, 0, 150));
     gameWindow.draw(overlay);
 
-    // Рисуем диалог
+    // ГђГЁГ±ГіГҐГ¬ Г¤ГЁГ Г«Г®ГЈ
     gameWindow.draw(confirmationBox);
     gameWindow.draw(confirmationText);
     gameWindow.draw(yesText);

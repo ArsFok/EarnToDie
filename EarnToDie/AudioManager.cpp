@@ -5,6 +5,13 @@ AudioManager::AudioManager() {
     // Инициализация
 }
 
+AudioManager::~AudioManager() {
+    // Очищаем память от музыки
+    for (auto& m : music) {
+        delete m.second;
+    }
+}
+
 bool AudioManager::loadSound(const std::string& name, const std::string& filename) {
     sf::SoundBuffer buffer;
     if (!buffer.loadFromFile(filename)) {
@@ -22,19 +29,55 @@ bool AudioManager::loadSound(const std::string& name, const std::string& filenam
 }
 
 bool AudioManager::loadMusic(const std::string& name, const std::string& filename) {
-    sf::Music* music = new sf::Music();
-    if (!music->openFromFile(filename)) {
+    sf::Music* musicPtr = new sf::Music();
+    if (!musicPtr->openFromFile(filename)) {
         std::cout << "Failed to load music: " << filename << std::endl;
-        delete music;
+        delete musicPtr;
         return false;
     }
 
-    this->music[name] = music;
-    music->setLoop(true); // Музыка зацикливается
-    music->setVolume(musicVolume);
+    this->music[name] = musicPtr;
+    musicPtr->setLoop(true);
+    musicPtr->setVolume(musicVolume);
 
     std::cout << "Music loaded: " << name << std::endl;
     return true;
+}
+
+// НОВЫЙ МЕТОД: Музыка для уровней
+void AudioManager::playLevelMusic(int level) {
+    std::string musicName;
+    switch (level) {
+    case 1: musicName = "level1"; break;
+    case 2: musicName = "level2"; break;
+    case 3: musicName = "level3"; break;
+    case 4: musicName = "level4"; break;
+    case 5: musicName = "level5"; break;
+    default: musicName = "level1"; break;
+    }
+
+    if (music.find(musicName) != music.end()) {
+        if (currentMusic) {
+            currentMusic->stop();
+        }
+        currentMusic = music[musicName];
+        currentMusic->setVolume(musicVolume);
+        currentMusic->play();
+        std::cout << "Playing level music: " << musicName << std::endl;
+    }
+}
+
+// НОВЫЙ МЕТОД: Музыка для меню
+void AudioManager::playMenuMusic() {
+    if (music.find("menu") != music.end()) {
+        if (currentMusic) {
+            currentMusic->stop();
+        }
+        currentMusic = music["menu"];
+        currentMusic->setVolume(musicVolume);
+        currentMusic->play();
+        std::cout << "Playing menu music" << std::endl;
+    }
 }
 
 void AudioManager::playSound(const std::string& name) {

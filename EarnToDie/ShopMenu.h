@@ -1,6 +1,7 @@
-#pragma once
+п»ї#pragma once
 #include <SFML/Graphics.hpp>
 #include "const.h"
+#include "AudioManager.h"
 #include <vector>
 #include <string>
 #include <iostream>
@@ -12,6 +13,7 @@ class GameState;
 
 class ShopMenu {
 private:
+    AudioManager& audioManager;
     sf::RenderWindow& gameWindow;
     sf::Font font;
     sf::Texture backgroundTexture;
@@ -36,7 +38,7 @@ private:
     int& playerGoldRef;
     bool m_upgradesChanged = false;
 
-    // Статистики улучшений
+    // Г‘ГІГ ГІГЁГ±ГІГЁГЄГЁ ГіГ«ГіГ·ГёГҐГ­ГЁГ©
     struct Upgrade {
         std::string name;
         int basePrice;
@@ -55,7 +57,7 @@ private:
     std::string getLevelText(int index) const;
 
 public:
-    ShopMenu(sf::RenderWindow& window, int& goldRef);
+    ShopMenu(sf::RenderWindow& window, int& goldRef, AudioManager& audioManager);
     ~ShopMenu() = default;
 
     bool isActiveState() const { return isActive; }
@@ -68,7 +70,7 @@ public:
     void render();
     void handleEvents();
 
-    // Геттеры для улучшений (понятные названия)
+    // ГѓГҐГІГІГҐГ°Г» Г¤Г«Гї ГіГ«ГіГ·ГёГҐГ­ГЁГ© (ГЇГ®Г­ГїГІГ­Г»ГҐ Г­Г Г§ГўГ Г­ГЁГї)
     int getFuelLevel() const {
         if (upgrades.size() > 0) return upgrades[0].currentLevel;
         return 0;
@@ -86,7 +88,7 @@ public:
     int getBoostCapacity() const { return 100 + getBoostLevel() * 25; }
     float getSpeedMultiplier() const { return 1.0f + getSpeedLevel() * 0.2f; }
 
-    // Совместимость со старым кодом
+    // Г‘Г®ГўГ¬ГҐГ±ГІГЁГ¬Г®Г±ГІГј Г±Г® Г±ГІГ Г°Г»Г¬ ГЄГ®Г¤Г®Г¬
     int getFuelCapacityLevel() const { return getFuelLevel(); }
     int getAccelerationLevel() const { return getBoostLevel(); }
     int getCarSpeedLevel() const { return getSpeedLevel(); }
@@ -96,7 +98,7 @@ public:
     void applyUpgradesImmediately();
     void resetUpgrades();
 
-    // Загрузка/сохранение улучшений
+    // Г‡Г ГЈГ°ГіГ§ГЄГ /Г±Г®ГµГ°Г Г­ГҐГ­ГЁГҐ ГіГ«ГіГ·ГёГҐГ­ГЁГ©
     void loadUpgrades();
     void saveUpgrades();
 

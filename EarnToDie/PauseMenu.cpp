@@ -1,10 +1,11 @@
-#include "PauseMenu.h"
+п»ї#include "PauseMenu.h"
 #include <iostream>
 #include "const.h"
 
 PauseMenu::PauseMenu(sf::RenderWindow& window, AudioManager& audioManager)
     : gameWindow(window)
     , menuController(4)
+    , audioManager(audioManager)
     , settingsMenu(window, audioManager)
     , normalColor(sf::Color::White)
     , selectedColor(sf::Color::Yellow)
@@ -52,7 +53,7 @@ void PauseMenu::initializeMenuItems() {
         sf::Text text;
         text.setFont(font);
         text.setString(menuTexts[i]);
-        text.setCharacterSize(22); // Такой же размер как в ShopMenu
+        text.setCharacterSize(22); // Г’Г ГЄГ®Г© Г¦ГҐ Г°Г Г§Г¬ГҐГ° ГЄГ ГЄ Гў ShopMenu
         text.setFillColor(normalColor);
 
         sf::FloatRect textRect = text.getLocalBounds();
@@ -70,7 +71,7 @@ void PauseMenu::initializeButtons() {
     for (size_t i = 0; i < menuPauseItems.size(); ++i) {
         sf::RectangleShape button(sf::Vector2f(BUTTON_WIDTH, BUTTON_HEIGHT));
         button.setFillColor(buttonColor);
-        button.setOutlineThickness(2.0f); // Такой же как в ShopMenu
+        button.setOutlineThickness(2.0f); // Г’Г ГЄГ®Г© Г¦ГҐ ГЄГ ГЄ Гў ShopMenu
         button.setOutlineColor(buttonOutlineColor);
 
         button.setOrigin(BUTTON_WIDTH / 2.0f, BUTTON_HEIGHT / 2.0f);
@@ -199,15 +200,15 @@ void PauseMenu::updateMenuVisuals() {
         if (i == selectedIndex) {
             buttons[i].setFillColor(sf::Color(100, 100, 100, 200));
             buttons[i].setOutlineColor(selectedColor);
-            buttons[i].setOutlineThickness(3.0f); // Такой же как в ShopMenu
+            buttons[i].setOutlineThickness(3.0f); // Г’Г ГЄГ®Г© Г¦ГҐ ГЄГ ГЄ Гў ShopMenu
             menuPauseItems[i].setFillColor(selectedColor);
             menuPauseItems[i].setStyle(sf::Text::Bold);
-            menuPauseItems[i].setScale(1.03f, 1.03f); // Такой же как в ShopMenu
+            menuPauseItems[i].setScale(1.03f, 1.03f); // Г’Г ГЄГ®Г© Г¦ГҐ ГЄГ ГЄ Гў ShopMenu
         }
         else {
             buttons[i].setFillColor(buttonColor);
             buttons[i].setOutlineColor(buttonOutlineColor);
-            buttons[i].setOutlineThickness(2.0f); // Такой же как в ShopMenu
+            buttons[i].setOutlineThickness(2.0f); // Г’Г ГЄГ®Г© Г¦ГҐ ГЄГ ГЄ Гў ShopMenu
             menuPauseItems[i].setFillColor(normalColor);
             menuPauseItems[i].setStyle(sf::Text::Regular);
             menuPauseItems[i].setScale(1.0f, 1.0f);
@@ -221,6 +222,9 @@ void PauseMenu::handleMenuSelection(int selectedIndex) {
     std::cout << "=== PAUSE MENU FINAL SELECTION ===" << std::endl;
     std::cout << "Selected: " << selectedIndex << " - " << menuPauseItems[selectedIndex].getString().toAnsiString() << std::endl;
 
+    if (audioManager.isSoundLoaded("click")) {
+        audioManager.playSound("click");
+    }
     pauseMenuResult = selectedIndex;
 
     switch (selectedIndex) {
@@ -253,46 +257,46 @@ void PauseMenu::render() {
         return;
     }
 
-    // Полупрозрачный темный фон (как в ShopMenu)
+    // ГЏГ®Г«ГіГЇГ°Г®Г§Г°Г Г·Г­Г»Г© ГІГҐГ¬Г­Г»Г© ГґГ®Г­ (ГЄГ ГЄ Гў ShopMenu)
     sf::RectangleShape overlay(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
     overlay.setFillColor(sf::Color(0, 0, 0, 180));
     gameWindow.draw(background);
     gameWindow.draw(overlay);
 
-    // Заголовок паузы
+    // Г‡Г ГЈГ®Г«Г®ГўГ®ГЄ ГЇГ ГіГ§Г»
     sf::Text pauseTitle;
     pauseTitle.setFont(font);
     pauseTitle.setString("GAME PAUSED");
-    pauseTitle.setCharacterSize(50); // Такой же размер как в ShopMenu
+    pauseTitle.setCharacterSize(50); // Г’Г ГЄГ®Г© Г¦ГҐ Г°Г Г§Г¬ГҐГ° ГЄГ ГЄ Гў ShopMenu
     pauseTitle.setFillColor(titleColor);
     pauseTitle.setStyle(sf::Text::Bold);
 
     sf::FloatRect titleRect = pauseTitle.getLocalBounds();
     pauseTitle.setOrigin(titleRect.left + titleRect.width / 2.0f,
         titleRect.top + titleRect.height / 2.0f);
-    pauseTitle.setPosition(WINDOW_WIDTH / 2.0f, 100); // Такая же позиция как в ShopMenu
+    pauseTitle.setPosition(WINDOW_WIDTH / 2.0f, 100); // Г’Г ГЄГ Гї Г¦ГҐ ГЇГ®Г§ГЁГ¶ГЁГї ГЄГ ГЄ Гў ShopMenu
     gameWindow.draw(pauseTitle);
 
-    // Рисуем кнопки
+    // ГђГЁГ±ГіГҐГ¬ ГЄГ­Г®ГЇГЄГЁ
     for (const auto& button : buttons) {
         gameWindow.draw(button);
     }
 
-    // Рисуем текст на кнопках
+    // ГђГЁГ±ГіГҐГ¬ ГІГҐГЄГ±ГІ Г­Г  ГЄГ­Г®ГЇГЄГ Гµ
     for (const auto& text : menuPauseItems) {
         gameWindow.draw(text);
     }
 
-    // Подсказки управления
+    // ГЏГ®Г¤Г±ГЄГ Г§ГЄГЁ ГіГЇГ°Г ГўГ«ГҐГ­ГЁГї
     sf::Text controlsHint;
     controlsHint.setFont(font);
     controlsHint.setString("Use ARROW KEYS and ENTER to select, ESC to continue");
-    controlsHint.setCharacterSize(16); // Такой же размер как в ShopMenu
+    controlsHint.setCharacterSize(16); // Г’Г ГЄГ®Г© Г¦ГҐ Г°Г Г§Г¬ГҐГ° ГЄГ ГЄ Гў ShopMenu
     controlsHint.setFillColor(sf::Color(200, 200, 200));
 
     sf::FloatRect hintRect = controlsHint.getLocalBounds();
     controlsHint.setOrigin(hintRect.left + hintRect.width / 2.0f,
         hintRect.top + hintRect.height / 2.0f);
-    controlsHint.setPosition(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT - 50); // Такая же позиция как в ShopMenu
+    controlsHint.setPosition(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT - 50); // Г’Г ГЄГ Гї Г¦ГҐ ГЇГ®Г§ГЁГ¶ГЁГї ГЄГ ГЄ Гў ShopMenu
     gameWindow.draw(controlsHint);
-}   
+}

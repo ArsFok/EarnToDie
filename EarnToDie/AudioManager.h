@@ -6,7 +6,7 @@
 class AudioManager {
 public:
     AudioManager();
-    ~AudioManager() = default;
+    ~AudioManager();
 
     // Загрузка звуков
     bool loadSound(const std::string& name, const std::string& filename);
@@ -16,8 +16,10 @@ public:
     void playSound(const std::string& name);
     void stopSound(const std::string& name);
 
-    // Управление музыкой
+    // Управление музыкой - ДОБАВЛЯЕМ МЕТОДЫ ДЛЯ УРОВНЕЙ
     void playMusic(const std::string& name);
+    void playLevelMusic(int level); // НОВЫЙ МЕТОД ДЛЯ УРОВНЕЙ
+    void playMenuMusic(); // НОВЫЙ МЕТОД ДЛЯ МЕНЮ
     void pauseMusic();
     void resumeMusic();
     void stopMusic();

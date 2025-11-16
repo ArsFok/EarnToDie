@@ -41,6 +41,7 @@ private:
 
     MenuController menuController;
     SettingsMenu settingsMenu;
+    AudioManager& audioManager;
 
     int pauseMenuResult = -1;
     int previousSelectedIndex = -1;
@@ -58,8 +59,8 @@ private:
     void handleMenuSelection(int selectedIndex);
 };
 namespace PauseMenuItems {
-	const int RESUME = 0;
-	const int SETTINGS = 1;
-	const int MAIN_MENU = 2;
-	const int EXIT = 3;
+    const int RESUME = 0;
+    const int SETTINGS = 1;
+    const int MAIN_MENU = 2;
+    const int EXIT = 3;
 }

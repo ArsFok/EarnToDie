@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include "MenuController.h"
 #include "AudioManager.h"
 #include "const.h"
@@ -24,7 +24,7 @@ public:
     int getSettingsMenuResult() { return settingsMenuResult; }
     void resetMenuResult() { settingsMenuResult = -1; }
 
-    // Геттеры для настроек
+    // ГѓГҐГІГІГҐГ°Г» Г¤Г«Гї Г­Г Г±ГІГ°Г®ГҐГЄ
     float getMusicVolume() const { return musicVolume; }
     float getSoundVolume() const { return soundVolume; }
 
@@ -45,7 +45,7 @@ private:
     int previousSelectedIndex = -1;
     bool isMenuActive = false;
 
-    // Настройки
+    // ГЌГ Г±ГІГ°Г®Г©ГЄГЁ
     float musicVolume = 50.0f;
     float soundVolume = 70.0f;
 

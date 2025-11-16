@@ -140,7 +140,7 @@ int main()
     GameState gameState;
     AudioManager audioManager;
     LevelMenu levelMenu(window, audioManager);
-    ShopMenu shopMenu(window, gameState.getTotalGoldRef());
+    ShopMenu shopMenu(window, gameState.getTotalGoldRef(), audioManager);
     EntityController controller(gameState, &shopMenu);
     gameState.setShopMenu(&shopMenu);
     FinalGameWindow finalWindow(window);
@@ -159,12 +159,17 @@ int main()
 
     Texture backgroundTexture;
 
-    audioManager.loadMusic("background", "assets/music/background.ogg");
-    audioManager.loadSound("click", "assets/sounds/click.wav");
-    audioManager.loadSound("collision", "assets/sounds/collision.wav");
-    audioManager.loadSound("coin", "assets/sounds/coin.wav");
+    audioManager.loadMusic("menu", "assets/music/menu.mp3.");
+    audioManager.loadMusic("level1", "assets/music/level1.mp3");
+    audioManager.loadMusic("level2", "assets/music/level2.mp3");
+    audioManager.loadMusic("level3", "assets/music/level3.mp3");
+    audioManager.loadMusic("level4", "assets/music/level4.mp3");
+    audioManager.loadMusic("level5", "assets/music/level5.mp3");
 
-    audioManager.playMusic("background");
+    audioManager.loadSound("click", "assets/sounds/click.mp3");
+    audioManager.loadSound("collision", "assets/sounds/collision.mp3");
+
+    audioManager.playMusic("menu");
 
     if (!backgroundTexture.loadFromFile("background.jpg")) {
         cout << "Failed to load background image!" << endl;
@@ -225,11 +230,13 @@ int main()
                 if (selectedLevel > 0) {
                     cout << "Starting level " << selectedLevel << "..." << endl;
                     currentLevel = selectedLevel;
+                    audioManager.playLevelMusic(currentLevel);
                     resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, isVideoPlaying, videoFinished, finalVideo, gameOverVideo, currentLevel);
                     levelMenu.setActive(false);
                     levelMenu.resetSelection();
                 }
                 else if (selectedLevel == 0 && !levelMenu.isActive()) {
+                    audioManager.playMenuMusic();
                     menu.setActive(true);
                 }
                 continue;
@@ -272,6 +279,7 @@ int main()
             controller.resetReturnToMainMenu();
             currentLevel = 0;
             menu.setActive(true);
+            audioManager.playMenuMusic();
             resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, isVideoPlaying, videoFinished, finalVideo, gameOverVideo, currentLevel);
             continue;
         }
@@ -348,8 +356,12 @@ int main()
             if (controller.shouldReturnToMainMenu()) {
                 controller.resetReturnToMainMenu();
                 menu.setActive(true);
+                audioManager.playMenuMusic();
                 resetGame(gameState, shopMenu, enemies, subjects, controller, enemySpawnTimer, subjectSpawnTimer, isVideoPlaying, videoFinished, finalVideo, gameOverVideo, currentLevel);
                 continue;
+            }
+            if (!pauseMenu.isActive() && !pauseMenu.isGamePaused() && currentLevel > 0) {
+                audioManager.playLevelMusic(currentLevel);
             }
             continue;
         }
@@ -500,6 +512,7 @@ int main()
                     std::cout << "DEBUG: COLLISION DETECTED!" << std::endl;
                     if (!(*it)->isDead() && !(*it)->isKnockback()) {
                         std::cout << "DEBUG: Applying knockback to enemy" << std::endl;
+                        audioManager.playSound("collision");
                         sf::Vector2f playerPos = controller.getEntity()->shape.getPosition();
                         sf::Vector2f zombiePos = (*it)->getEnemy()->getPosition();
                         sf::Vector2f knockbackDir = zombiePos - playerPos;

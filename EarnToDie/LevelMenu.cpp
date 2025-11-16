@@ -1,4 +1,4 @@
-#include "LevelMenu.h"
+п»ї#include "LevelMenu.h"
 #include "const.h"
 #include <vector>
 
@@ -12,7 +12,7 @@ void LevelMenu::initializeResources() {
             cout << "Main menu background not found, creating default background..." << endl;
             backgroundTexture.create(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-            // Заполняем текстуру градиентом
+            // Г‡Г ГЇГ®Г«Г­ГїГҐГ¬ ГІГҐГЄГ±ГІГіГ°Гі ГЈГ°Г Г¤ГЁГҐГ­ГІГ®Г¬
             Image backgroundImage;
             backgroundImage.create(WINDOW_WIDTH, WINDOW_HEIGHT, Color(30, 60, 90));
             backgroundTexture.loadFromImage(backgroundImage);
@@ -20,7 +20,7 @@ void LevelMenu::initializeResources() {
     }
     background.setTexture(backgroundTexture);
 
-    // Загрузка шрифта
+    // Г‡Г ГЈГ°ГіГ§ГЄГ  ГёГ°ГЁГґГІГ 
     if (!font.loadFromFile("arial.ttf")) {
         vector<string> fallbackFonts = {
             "C:/Windows/Fonts/arial.ttf",
@@ -53,7 +53,7 @@ void LevelMenu::initializeMenuItems() {
         "Back to Main Menu"
     };
 
-    // Устанавливаем количество пунктов меню в контроллере
+    // Г“Г±ГІГ Г­Г ГўГ«ГЁГўГ ГҐГ¬ ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГЇГіГ­ГЄГІГ®Гў Г¬ГҐГ­Гѕ Гў ГЄГ®Г­ГІГ°Г®Г«Г«ГҐГ°ГҐ
     menuController.setMenuItemsCount(menuTexts.size());
 
     float startY = 200;
@@ -164,13 +164,13 @@ void LevelMenu::render() {
 
     gameWindow.clear(backgroundColor);
 
-    // Фон
+    // Г”Г®Г­
     RectangleShape backgroundOverlay(Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
     backgroundOverlay.setFillColor(Color(0, 0, 0, 150));
     gameWindow.draw(background);
     gameWindow.draw(backgroundOverlay);
 
-    // Заголовок
+    // Г‡Г ГЈГ®Г«Г®ГўГ®ГЄ
     Text title;
     title.setFont(font);
     title.setString("SELECT LEVEL");
@@ -185,17 +185,17 @@ void LevelMenu::render() {
 
     gameWindow.draw(title);
 
-    // Кнопки
+    // ГЉГ­Г®ГЇГЄГЁ
     for (const auto& button : buttons) {
         gameWindow.draw(button);
     }
 
-    // Текст на кнопках
+    // Г’ГҐГЄГ±ГІ Г­Г  ГЄГ­Г®ГЇГЄГ Гµ
     for (const auto& item : menuItems) {
         gameWindow.draw(item);
     }
 
-    // Подсказки управления
+    // ГЏГ®Г¤Г±ГЄГ Г§ГЄГЁ ГіГЇГ°Г ГўГ«ГҐГ­ГЁГї
     Text controlsHint;
     controlsHint.setFont(font);
     controlsHint.setString("Use ARROW KEYS to navigate, ENTER to select, ESC to go back");
@@ -247,6 +247,9 @@ void LevelMenu::updateMenuVisuals() {
 void LevelMenu::handleMenuSelection(int selectedIndex) {
     cout << "Level selected: " << selectedIndex << endl;
 
+    if (audioManager.isSoundLoaded("click")) {
+        audioManager.playSound("click");
+    }
     switch (selectedIndex) {
     case LevelMenuItems::LEVEL_1:
         selectedLevel = 1;

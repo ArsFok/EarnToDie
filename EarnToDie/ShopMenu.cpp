@@ -1,13 +1,14 @@
-#include "ShopMenu.h"
+п»ї#include "ShopMenu.h"
 #include "const.h"
 #include <iostream>
 #include <fstream>
 
 using namespace sf;
 
-ShopMenu::ShopMenu(RenderWindow& window, int& goldRef)
+ShopMenu::ShopMenu(RenderWindow& window, int& goldRef, AudioManager& audioManager)
     : gameWindow(window)
     , playerGoldRef(goldRef)
+    , audioManager(audioManager)
     , normalColor(Color::White)
     , selectedColor(Color::Yellow)
     , buttonColor(Color(70, 70, 70, 200))
@@ -59,9 +60,9 @@ void ShopMenu::initializeUpgrades() {
 void ShopMenu::initializeMenuItems() {
     float startY = WINDOW_HEIGHT / 2 - (upgrades.size() + 1) * (BUTTON_HEIGHT + BUTTON_PADDING) / 2 + 50;
 
-    // Создаем элементы для улучшений
+    // Г‘Г®Г§Г¤Г ГҐГ¬ ГЅГ«ГҐГ¬ГҐГ­ГІГ» Г¤Г«Гї ГіГ«ГіГ·ГёГҐГ­ГЁГ©
     for (size_t i = 0; i < upgrades.size(); ++i) {
-        // Основной текст улучшения
+        // ГЋГ±Г­Г®ГўГ­Г®Г© ГІГҐГЄГ±ГІ ГіГ«ГіГ·ГёГҐГ­ГЁГї
         Text itemText;
         itemText.setFont(font);
         itemText.setCharacterSize(22);
@@ -76,7 +77,7 @@ void ShopMenu::initializeMenuItems() {
 
         shopItems.push_back(itemText);
 
-        // Текст цены
+        // Г’ГҐГЄГ±ГІ Г¶ГҐГ­Г»
         Text priceText;
         priceText.setFont(font);
         priceText.setCharacterSize(20);
@@ -90,7 +91,7 @@ void ShopMenu::initializeMenuItems() {
 
         priceTexts.push_back(priceText);
 
-        // Текст уровня
+        // Г’ГҐГЄГ±ГІ ГіГ°Г®ГўГ­Гї
         Text levelText;
         levelText.setFont(font);
         levelText.setCharacterSize(18);
@@ -105,7 +106,7 @@ void ShopMenu::initializeMenuItems() {
         levelTexts.push_back(levelText);
     }
 
-    // Кнопка "Назад"
+    // ГЉГ­Г®ГЇГЄГ  "ГЌГ Г§Г Г¤"
     Text backText;
     backText.setFont(font);
     backText.setString("Back to Menu");
@@ -163,7 +164,7 @@ void ShopMenu::setActive(bool active) {
 void ShopMenu::update() {
     handleEvents();
 
-    // Обновляем тексты цен и уровней
+    // ГЋГЎГ­Г®ГўГ«ГїГҐГ¬ ГІГҐГЄГ±ГІГ» Г¶ГҐГ­ ГЁ ГіГ°Г®ГўГ­ГҐГ©
     for (size_t i = 0; i < upgrades.size(); ++i) {
         if (upgrades[i].currentLevel >= upgrades[i].maxLevel) {
             priceTexts[i].setString("MAX");
@@ -181,7 +182,7 @@ void ShopMenu::update() {
         levelTexts[i].setString(getLevelText(i));
     }
 
-    // Обновляем визуальное состояние кнопок
+    // ГЋГЎГ­Г®ГўГ«ГїГҐГ¬ ГўГЁГ§ГіГ Г«ГјГ­Г®ГҐ Г±Г®Г±ГІГ®ГїГ­ГЁГҐ ГЄГ­Г®ГЇГ®ГЄ
     for (size_t i = 0; i < buttons.size(); ++i) {
         if (i == selectedIndex) {
             buttons[i].setFillColor(Color(100, 100, 100, 200));
@@ -221,12 +222,18 @@ void ShopMenu::handleEvents() {
             case Keyboard::Up:
                 if (selectedIndex > 0) {
                     selectedIndex--;
+                    if (audioManager.isSoundLoaded("click")) {
+                        audioManager.playSound("click");
+                    }
                     std::cout << "Shop: UP to " << selectedIndex << std::endl;
                 }
                 break;
             case Keyboard::Down:
                 if (selectedIndex < static_cast<int>(buttons.size()) - 1) {
                     selectedIndex++;
+                    if (audioManager.isSoundLoaded("click")) {
+                        audioManager.playSound("click");
+                    }
                     std::cout << "Shop: DOWN to " << selectedIndex << std::endl;
                 }
                 break;
@@ -234,7 +241,7 @@ void ShopMenu::handleEvents() {
             case Keyboard::Space:
                 if (selectedIndex >= 0) {
                     if (selectedIndex < static_cast<int>(upgrades.size())) {
-                        // Покупка улучшения
+                        // ГЏГ®ГЄГіГЇГЄГ  ГіГ«ГіГ·ГёГҐГ­ГЁГї
                         if (canAffordUpgrade(selectedIndex)) {
                             int price = getUpgradePrice(selectedIndex);
                             playerGoldRef -= price;
@@ -247,7 +254,7 @@ void ShopMenu::handleEvents() {
                         }
                     }
                     else {
-                        // Кнопка "Назад"
+                        // ГЉГ­Г®ГЇГЄГ  "ГЌГ Г§Г Г¤"
                         std::cout << "Shop: BACK selected" << std::endl;
                         isActive = false;
                     }
@@ -281,7 +288,7 @@ void ShopMenu::handleEvents() {
                         static_cast<float>(event.mouseButton.y))) {
                         selectedIndex = i;
                         if (i < upgrades.size()) {
-                            // Покупка улучшения
+                            // ГЏГ®ГЄГіГЇГЄГ  ГіГ«ГіГ·ГёГҐГ­ГЁГї
                             if (canAffordUpgrade(i)) {
                                 int price = getUpgradePrice(i);
                                 playerGoldRef -= price;
@@ -294,7 +301,7 @@ void ShopMenu::handleEvents() {
                             }
                         }
                         else {
-                            // Кнопка "Назад"
+                            // ГЉГ­Г®ГЇГЄГ  "ГЌГ Г§Г Г¤"
                             isActive = false;
                         }
                         break;
@@ -312,13 +319,13 @@ void ShopMenu::handleEvents() {
 void ShopMenu::render() {
     if (!isActive) return;
 
-    // Полупрозрачный темный фон
+    // ГЏГ®Г«ГіГЇГ°Г®Г§Г°Г Г·Г­Г»Г© ГІГҐГ¬Г­Г»Г© ГґГ®Г­
     RectangleShape overlay(Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
     overlay.setFillColor(Color(0, 0, 0, 180));
     gameWindow.draw(background);
     gameWindow.draw(overlay);
 
-    // Заголовок магазина
+    // Г‡Г ГЈГ®Г«Г®ГўГ®ГЄ Г¬Г ГЈГ Г§ГЁГ­Г 
     Text title;
     title.setFont(font);
     title.setString("UPGRADE SHOP");
@@ -332,7 +339,7 @@ void ShopMenu::render() {
     title.setPosition(WINDOW_WIDTH / 2.0f, 100);
     gameWindow.draw(title);
 
-    // Отображение золота игрока
+    // ГЋГІГ®ГЎГ°Г Г¦ГҐГ­ГЁГҐ Г§Г®Г«Г®ГІГ  ГЁГЈГ°Г®ГЄГ 
     Text goldText;
     goldText.setFont(font);
     goldText.setString("Your Gold: " + std::to_string(playerGoldRef) + "G");
@@ -346,27 +353,27 @@ void ShopMenu::render() {
     goldText.setPosition(WINDOW_WIDTH / 2.0f, 160);
     gameWindow.draw(goldText);
 
-    // Рисуем кнопки
+    // ГђГЁГ±ГіГҐГ¬ ГЄГ­Г®ГЇГЄГЁ
     for (const auto& button : buttons) {
         gameWindow.draw(button);
     }
 
-    // Рисуем текст улучшений
+    // ГђГЁГ±ГіГҐГ¬ ГІГҐГЄГ±ГІ ГіГ«ГіГ·ГёГҐГ­ГЁГ©
     for (const auto& text : shopItems) {
         gameWindow.draw(text);
     }
 
-    // Рисуем цены
+    // ГђГЁГ±ГіГҐГ¬ Г¶ГҐГ­Г»
     for (const auto& priceText : priceTexts) {
         gameWindow.draw(priceText);
     }
 
-    // Рисуем уровни
+    // ГђГЁГ±ГіГҐГ¬ ГіГ°Г®ГўГ­ГЁ
     for (const auto& levelText : levelTexts) {
         gameWindow.draw(levelText);
     }
 
-    // Подсказки управления
+    // ГЏГ®Г¤Г±ГЄГ Г§ГЄГЁ ГіГЇГ°Г ГўГ«ГҐГ­ГЁГї
     Text controlsHint;
     controlsHint.setFont(font);
     controlsHint.setString("Click or use ARROW KEYS and ENTER to buy upgrades");
@@ -391,7 +398,7 @@ void ShopMenu::loadUpgrades() {
         file.close();
         std::cout << "DEBUG: Shop upgrades loaded successfully" << std::endl;
 
-        // Проверка геттеров
+        // ГЏГ°Г®ГўГҐГ°ГЄГ  ГЈГҐГІГІГҐГ°Г®Гў
         std::cout << "DEBUG: Getters - Fuel: " << getFuelLevel()
             << ", Boost: " << getBoostLevel()
             << ", Speed: " << getSpeedLevel() << std::endl;

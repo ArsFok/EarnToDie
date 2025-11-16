@@ -305,6 +305,9 @@ void SettingsMenu::handleContinuousInput() {
 void SettingsMenu::adjustSetting(int direction) {
     int selectedIndex = menuController.getSelectedIndex();
 
+    if (audioManager.isSoundLoaded("click")) {
+        audioManager.playSound("click");
+    }
     switch (selectedIndex) {
     case SettingsMenuItems::MUSIC_VOLUME:
         musicVolume = std::max(0.0f, std::min(100.0f, musicVolume + direction * 5.0f));
@@ -376,6 +379,9 @@ void SettingsMenu::updateMenuVisuals() {
 void SettingsMenu::handleMenuSelection(int selectedIndex) {
     if (!menuController.isValidIndex() || selectedIndex >= menuSettingsItems.size()) {
         return;
+    }
+    if (audioManager.isSoundLoaded("click")) {
+        audioManager.playSound("click");
     }
 
     std::cout << "=== SETTINGS MENU FINAL SELECTION ===" << std::endl;
