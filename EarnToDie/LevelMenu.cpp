@@ -11,8 +11,6 @@ void LevelMenu::initializeResources() {
         if (!backgroundTexture.loadFromFile("menu_background.png")) {
             cout << "Main menu background not found, creating default background..." << endl;
             backgroundTexture.create(WINDOW_WIDTH, WINDOW_HEIGHT);
-
-            // Çàïîëíÿåì òåêñòóðó ãðàäèåíòîì
             Image backgroundImage;
             backgroundImage.create(WINDOW_WIDTH, WINDOW_HEIGHT, Color(30, 60, 90));
             backgroundTexture.loadFromImage(backgroundImage);
@@ -20,7 +18,6 @@ void LevelMenu::initializeResources() {
     }
     background.setTexture(backgroundTexture);
 
-    // Çàãðóçêà øðèôòà
     if (!font.loadFromFile("arial.ttf")) {
         vector<string> fallbackFonts = {
             "C:/Windows/Fonts/arial.ttf",
@@ -53,7 +50,6 @@ void LevelMenu::initializeMenuItems() {
         "Back to Main Menu"
     };
 
-    // Óñòàíàâëèâàåì êîëè÷åñòâî ïóíêòîâ ìåíþ â êîíòðîëëåðå
     menuController.setMenuItemsCount(menuTexts.size());
 
     float startY = 200;
@@ -164,13 +160,11 @@ void LevelMenu::render() {
 
     gameWindow.clear(backgroundColor);
 
-    // Ôîí
     RectangleShape backgroundOverlay(Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
     backgroundOverlay.setFillColor(Color(0, 0, 0, 150));
     gameWindow.draw(background);
     gameWindow.draw(backgroundOverlay);
 
-    // Çàãîëîâîê
     Text title;
     title.setFont(font);
     title.setString("SELECT LEVEL");
@@ -185,17 +179,14 @@ void LevelMenu::render() {
 
     gameWindow.draw(title);
 
-    // Êíîïêè
     for (const auto& button : buttons) {
         gameWindow.draw(button);
     }
 
-    // Òåêñò íà êíîïêàõ
     for (const auto& item : menuItems) {
         gameWindow.draw(item);
     }
 
-    // Ïîäñêàçêè óïðàâëåíèÿ
     Text controlsHint;
     controlsHint.setFont(font);
     controlsHint.setString("Use ARROW KEYS to navigate, ENTER to select, ESC to go back");

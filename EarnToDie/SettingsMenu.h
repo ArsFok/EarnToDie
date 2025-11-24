@@ -24,7 +24,6 @@ public:
     int getSettingsMenuResult() { return settingsMenuResult; }
     void resetMenuResult() { settingsMenuResult = -1; }
 
-    // Ãåòòåðû äëÿ íàñòðîåê
     float getMusicVolume() const { return musicVolume; }
     float getSoundVolume() const { return soundVolume; }
 
@@ -45,7 +44,6 @@ private:
     int previousSelectedIndex = -1;
     bool isMenuActive = false;
 
-    // Íàñòðîéêè
     float musicVolume = 50.0f;
     float soundVolume = 70.0f;
 

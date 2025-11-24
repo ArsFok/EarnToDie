@@ -8,15 +8,14 @@ public:
 	Shape* shape;
 
 	GameObject(Shape* shapePtr, Vector2f startPosition) : shape(shapePtr) {
-		shape->setPosition(startPosition); //не доконца понял, как работает этот конструктор
+		shape->setPosition(startPosition);
 	}
 
 	virtual ~GameObject() {
 		delete shape;
 	}
-	// почему виртуальные функции
 	virtual void update(Vector2f moveDirection) = 0;
-	virtual void draw(RenderWindow& windows) const; //почему конст?
+	virtual void draw(RenderWindow& windows) const;
 	virtual FloatRect getGlobalBounds() const = 0;
 
 	bool checkCollision(const RectangleShape& player) const;

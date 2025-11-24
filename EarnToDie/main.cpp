@@ -8,7 +8,6 @@
 #include "EnemySpawner.h"
 #include "SubjectSpawner.h"
 #include "FinalGameWindow.h"
-#include "main.h"
 #include "GameState.h"
 #include "GameMenu.h"
 #include "ShopMenu.h"
@@ -284,7 +283,7 @@ int main()
             continue;
         }
 
-        // Воспроизведение видео (победы или поражения)
+        // Воспроизведение видео
         if (isVideoPlaying) {
             if (isWinVideo) {
                 finalVideo.update();
@@ -523,7 +522,8 @@ int main()
                         }
                         (*it)->applyKnockback(knockbackDir, 6.0f, 1.5f);
                         (*it)->takeDamage();
-                        gameState.applySlowEffect(2.0f, 0.3f);
+                        gameState.addSlowTime(2.0f);
+                        gameState.checkSlowEffectGameOver();
                         gameState.addGold(10);
                     }
                 }

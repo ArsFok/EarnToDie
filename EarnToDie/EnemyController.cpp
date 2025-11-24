@@ -8,14 +8,11 @@ EnemyController::EnemyController(std::unique_ptr<MovingObject> enemyObj, float s
 }
 
 bool EnemyController::update() {
-    // Обновляем состояние зомби
-    zombieState.update(1.0f / 60.0f); // 60 FPS
+    zombieState.update(1.0f / 60.0f);
 
-    // Движение зависит от состояния
     sf::Vector2f direction(0, 1 * speed);   
 
     if (zombieState.isKnockback()) {
-        // Добавляем откидывание к обычному движению
         direction += zombieState.getKnockbackVelocity();
     }
 
@@ -30,18 +27,15 @@ bool EnemyController::update() {
 }
 void EnemyController::draw(sf::RenderWindow& window) {
     if (zombieState.isDead()) {
-        // Эффект смерти
         enemy->setRotation(90.0f);
         enemy->setColor(sf::Color(128, 128, 128, 180));
     }
     else if (zombieState.isKnockback()) {
-        // Эффект отскока
         float rotation = std::sin(zombieState.getKnockbackTimer() * 15.0f) * 30.0f;
         enemy->setRotation(rotation);
         enemy->setColor(sf::Color(255, 100, 100));
     }
     else {
-        // Нормальное состояние
         enemy->setRotation(0.0f);
         enemy->setColor(sf::Color::White);
     }

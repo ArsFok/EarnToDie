@@ -95,7 +95,6 @@ void FinalGameWindow::setActive(bool active, int result) {
 void FinalGameWindow::update() {
     handleEvents();
 
-    // Обновляем визуальное состояние кнопок
     for (size_t i = 0; i < menuItems.size(); ++i) {
         if (i == selectedIndex) {
             buttons[i].setFillColor(Color(100, 100, 100, 200));
@@ -192,13 +191,11 @@ void FinalGameWindow::handleEvents() {
 void FinalGameWindow::render() {
     if (!isActive) return;
 
-    // Полупрозрачный темный фон
     RectangleShape overlay(Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
     overlay.setFillColor(Color(0, 0, 0, 180));
     gameWindow.draw(background);
     gameWindow.draw(overlay);
 
-    // Заголовок в зависимости от результата
     Text title;
     title.setFont(font);
 
@@ -220,8 +217,6 @@ void FinalGameWindow::render() {
     title.setPosition(WINDOW_WIDTH / 2.0f, 150);
 
     gameWindow.draw(title);
-
-    // Сообщение в зависимости от результата
     Text message;
     message.setFont(font);
 
@@ -242,17 +237,13 @@ void FinalGameWindow::render() {
 
     gameWindow.draw(message);
 
-    // Рисуем кнопки
     for (const auto& button : buttons) {
         gameWindow.draw(button);
     }
 
-    // Рисуем текст на кнопках
     for (const auto& text : menuItems) {
         gameWindow.draw(text);
     }
-
-    // Подсказки управления
     Text controlsHint;
     controlsHint.setFont(font);
     controlsHint.setString("Use ARROW KEYS and ENTER to select, ESC for Main Menu");

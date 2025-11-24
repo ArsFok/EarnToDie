@@ -15,13 +15,11 @@ public:
 
         shape->setOrigin(radius / 2, radius / 2);
 
-        // Список доступных текстур
         std::vector<std::string> textureFiles = {
             "Slime.png",
             "Trapdoor.png",
         };
 
-        // Выбираем случайную текстуру
         int randomIndex = rand() % textureFiles.size();
         std::string selectedTexture = textureFiles[randomIndex];
 

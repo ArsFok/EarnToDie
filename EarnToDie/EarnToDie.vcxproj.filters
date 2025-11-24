@@ -107,9 +107,6 @@
     <ClInclude Include="const.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="main.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="GameMenu.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>

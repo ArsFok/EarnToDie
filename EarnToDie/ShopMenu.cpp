@@ -59,10 +59,7 @@ void ShopMenu::initializeUpgrades() {
 
 void ShopMenu::initializeMenuItems() {
     float startY = WINDOW_HEIGHT / 2 - (upgrades.size() + 1) * (BUTTON_HEIGHT + BUTTON_PADDING) / 2 + 50;
-
-    // Ñîçäàåì ýëåìåíòû äëÿ óëó÷øåíèé
     for (size_t i = 0; i < upgrades.size(); ++i) {
-        // Îñíîâíîé òåêñò óëó÷øåíèÿ
         Text itemText;
         itemText.setFont(font);
         itemText.setCharacterSize(22);
@@ -77,7 +74,6 @@ void ShopMenu::initializeMenuItems() {
 
         shopItems.push_back(itemText);
 
-        // Òåêñò öåíû
         Text priceText;
         priceText.setFont(font);
         priceText.setCharacterSize(20);
@@ -91,7 +87,7 @@ void ShopMenu::initializeMenuItems() {
 
         priceTexts.push_back(priceText);
 
-        // Òåêñò óðîâíÿ
+
         Text levelText;
         levelText.setFont(font);
         levelText.setCharacterSize(18);
@@ -106,7 +102,6 @@ void ShopMenu::initializeMenuItems() {
         levelTexts.push_back(levelText);
     }
 
-    // Êíîïêà "Íàçàä"
     Text backText;
     backText.setFont(font);
     backText.setString("Back to Menu");
@@ -164,7 +159,6 @@ void ShopMenu::setActive(bool active) {
 void ShopMenu::update() {
     handleEvents();
 
-    // Îáíîâëÿåì òåêñòû öåí è óðîâíåé
     for (size_t i = 0; i < upgrades.size(); ++i) {
         if (upgrades[i].currentLevel >= upgrades[i].maxLevel) {
             priceTexts[i].setString("MAX");
@@ -182,7 +176,6 @@ void ShopMenu::update() {
         levelTexts[i].setString(getLevelText(i));
     }
 
-    // Îáíîâëÿåì âèçóàëüíîå ñîñòîÿíèå êíîïîê
     for (size_t i = 0; i < buttons.size(); ++i) {
         if (i == selectedIndex) {
             buttons[i].setFillColor(Color(100, 100, 100, 200));
@@ -241,7 +234,6 @@ void ShopMenu::handleEvents() {
             case Keyboard::Space:
                 if (selectedIndex >= 0) {
                     if (selectedIndex < static_cast<int>(upgrades.size())) {
-                        // Ïîêóïêà óëó÷øåíèÿ
                         if (canAffordUpgrade(selectedIndex)) {
                             int price = getUpgradePrice(selectedIndex);
                             playerGoldRef -= price;
@@ -254,7 +246,6 @@ void ShopMenu::handleEvents() {
                         }
                     }
                     else {
-                        // Êíîïêà "Íàçàä"
                         std::cout << "Shop: BACK selected" << std::endl;
                         isActive = false;
                     }
@@ -288,7 +279,6 @@ void ShopMenu::handleEvents() {
                         static_cast<float>(event.mouseButton.y))) {
                         selectedIndex = i;
                         if (i < upgrades.size()) {
-                            // Ïîêóïêà óëó÷øåíèÿ
                             if (canAffordUpgrade(i)) {
                                 int price = getUpgradePrice(i);
                                 playerGoldRef -= price;
@@ -301,7 +291,6 @@ void ShopMenu::handleEvents() {
                             }
                         }
                         else {
-                            // Êíîïêà "Íàçàä"
                             isActive = false;
                         }
                         break;
@@ -318,14 +307,11 @@ void ShopMenu::handleEvents() {
 
 void ShopMenu::render() {
     if (!isActive) return;
-
-    // Ïîëóïðîçðà÷íûé òåìíûé ôîí
     RectangleShape overlay(Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
     overlay.setFillColor(Color(0, 0, 0, 180));
     gameWindow.draw(background);
     gameWindow.draw(overlay);
 
-    // Çàãîëîâîê ìàãàçèíà
     Text title;
     title.setFont(font);
     title.setString("UPGRADE SHOP");
@@ -339,7 +325,6 @@ void ShopMenu::render() {
     title.setPosition(WINDOW_WIDTH / 2.0f, 100);
     gameWindow.draw(title);
 
-    // Îòîáðàæåíèå çîëîòà èãðîêà
     Text goldText;
     goldText.setFont(font);
     goldText.setString("Your Gold: " + std::to_string(playerGoldRef) + "G");
@@ -353,27 +338,22 @@ void ShopMenu::render() {
     goldText.setPosition(WINDOW_WIDTH / 2.0f, 160);
     gameWindow.draw(goldText);
 
-    // Ðèñóåì êíîïêè
     for (const auto& button : buttons) {
         gameWindow.draw(button);
     }
 
-    // Ðèñóåì òåêñò óëó÷øåíèé
     for (const auto& text : shopItems) {
         gameWindow.draw(text);
     }
 
-    // Ðèñóåì öåíû
     for (const auto& priceText : priceTexts) {
         gameWindow.draw(priceText);
     }
 
-    // Ðèñóåì óðîâíè
     for (const auto& levelText : levelTexts) {
         gameWindow.draw(levelText);
     }
 
-    // Ïîäñêàçêè óïðàâëåíèÿ
     Text controlsHint;
     controlsHint.setFont(font);
     controlsHint.setString("Click or use ARROW KEYS and ENTER to buy upgrades");
@@ -398,7 +378,6 @@ void ShopMenu::loadUpgrades() {
         file.close();
         std::cout << "DEBUG: Shop upgrades loaded successfully" << std::endl;
 
-        // Ïðîâåðêà ãåòòåðîâ
         std::cout << "DEBUG: Getters - Fuel: " << getFuelLevel()
             << ", Boost: " << getBoostLevel()
             << ", Speed: " << getSpeedLevel() << std::endl;

@@ -38,7 +38,6 @@ private:
     int& playerGoldRef;
     bool m_upgradesChanged = false;
 
-    // Ñòàòèñòèêè óëó÷øåíèé
     struct Upgrade {
         std::string name;
         int basePrice;
@@ -70,7 +69,6 @@ public:
     void render();
     void handleEvents();
 
-    // Ãåòòåðû äëÿ óëó÷øåíèé (ïîíÿòíûå íàçâàíèÿ)
     int getFuelLevel() const {
         if (upgrades.size() > 0) return upgrades[0].currentLevel;
         return 0;
@@ -88,7 +86,6 @@ public:
     int getBoostCapacity() const { return 100 + getBoostLevel() * 25; }
     float getSpeedMultiplier() const { return 1.0f + getSpeedLevel() * 0.2f; }
 
-    // Ñîâìåñòèìîñòü ñî ñòàðûì êîäîì
     int getFuelCapacityLevel() const { return getFuelLevel(); }
     int getAccelerationLevel() const { return getBoostLevel(); }
     int getCarSpeedLevel() const { return getSpeedLevel(); }
@@ -98,7 +95,6 @@ public:
     void applyUpgradesImmediately();
     void resetUpgrades();
 
-    // Çàãðóçêà/ñîõðàíåíèå óëó÷øåíèé
     void loadUpgrades();
     void saveUpgrades();
 

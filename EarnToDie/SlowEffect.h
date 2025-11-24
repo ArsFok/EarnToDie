@@ -12,6 +12,10 @@ private:
     sf::Text effectText;
     sf::Font font;
 
+    bool warningActive;
+    sf::Clock warningTimer;
+    sf::Text warningText;
+
 public:
     SlowEffect();
     void activate(float duration, float factor);
@@ -20,4 +24,5 @@ public:
     bool isActive() const;
     float getSlowFactor() const;
     float getRemainingTime() const;
+    void addSlowTime(float additionalDuration);
 };

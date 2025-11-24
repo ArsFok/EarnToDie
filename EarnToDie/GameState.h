@@ -62,6 +62,7 @@ public:
         updateDistText();
         updateGoldText();
     }
+
     void setShopMenu(ShopMenu* shopMenu) {
         m_shopMenu = shopMenu;
         applyShopUpgrades();
@@ -85,12 +86,14 @@ public:
     void setPaused(bool paused) { m_gameStatus = paused ? GameStatus::Paused : GameStatus::Playing; }
     void setGameOver() { m_gameStatus = GameStatus::GameOver; }
     void setGameWon() { m_gameStatus = GameStatus::GameWon; }
+
     void resetDistance() {
         playerDist = 0;
         targetDistance = 0;
         updateDistText();
         cout << "DEBUG: Distance reset to " << playerDist << endl;
     }
+
     void setTargetDistance(int distance) { targetDistance = distance; }
     int getTargetDistance() const { return targetDistance; }
 
@@ -106,14 +109,15 @@ public:
         updateDistText();
         updateGoldText();
     }
+
     void resetAll() {
         m_gameStatus = GameStatus::Playing;
-        totalGold = 0;           
+        totalGold = 0;
         playerGold = 0;
         playerDist = 0;
         targetDistance = 0;
         playerFuel = getMaxFuel();
-        saveGold();                
+        saveGold();
         updateGoldText();
         updateDistText();
         updateFuelText();
@@ -128,7 +132,6 @@ public:
     void resetGold();
     int getTotalGold() const;
 
-    // Геттеры для доступа к игровым данным
     float getPlayerSpeed() const { return playerSpeed; }
     int getPlayerFuel() const { return playerFuel; }
     int getPlayerDist() const { return playerDist; }
@@ -140,7 +143,10 @@ public:
     void applyShopUpgrades();
     int getMaxFuel() const;
 
-    void applySlowEffect(float duration, float factor);
+    void addSlowTime(float additionalDuration);
+    bool isSlowEffectCritical() const;
+    void checkSlowEffectGameOver();
+
     float getSpeedMultiplier() const;
     bool isSlowed() const;
     float getSlowRemainingTime() const;
@@ -151,14 +157,14 @@ public:
     }
 
 private:
-    float playerSpeed;    // Скорость  
-    int playerBoostFuel;  // Буст
+    float playerSpeed;
+    int playerBoostFuel;
     int MaxPlayerBoostFuel;
-    int playerFuel;       // Топливо 
-    int playerDist;       // Расстояние
-    int targetDistance;   // Расстояние для победы
-    int playerGold;       // Золото
-    int totalGold;        // Общее золото за все время
+    int playerFuel;
+    int playerDist;
+    int targetDistance;
+    int playerGold;
+    int totalGold;
     bool boostActive = false;
 
     GameStatus m_gameStatus;

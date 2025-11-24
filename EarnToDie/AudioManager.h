@@ -8,29 +8,24 @@ public:
     AudioManager();
     ~AudioManager();
 
-    // Загрузка звуков
     bool loadSound(const std::string& name, const std::string& filename);
     bool loadMusic(const std::string& name, const std::string& filename);
 
-    // Управление звуками
     void playSound(const std::string& name);
     void stopSound(const std::string& name);
 
-    // Управление музыкой - ДОБАВЛЯЕМ МЕТОДЫ ДЛЯ УРОВНЕЙ
     void playMusic(const std::string& name);
-    void playLevelMusic(int level); // НОВЫЙ МЕТОД ДЛЯ УРОВНЕЙ
-    void playMenuMusic(); // НОВЫЙ МЕТОД ДЛЯ МЕНЮ
+    void playLevelMusic(int level);
+    void playMenuMusic();
     void pauseMusic();
     void resumeMusic();
     void stopMusic();
 
-    // Настройки громкости
     void setSoundVolume(float volume);
     void setMusicVolume(float volume);
     float getSoundVolume() const { return soundVolume; }
     float getMusicVolume() const { return musicVolume; }
 
-    // Проверка загрузки
     bool isSoundLoaded(const std::string& name) const {
         return sounds.find(name) != sounds.end();
     }

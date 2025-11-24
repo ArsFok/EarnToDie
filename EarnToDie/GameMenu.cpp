@@ -44,7 +44,7 @@ void GameMenu::initializeMenuItems() {
 
     menuController.setMenuItemsCount(menuTexts.size());
 
-    float startY = 250; // Íà÷àëüíàÿ ïîçèöèÿ Y
+    float startY = 250;
 
     for (size_t i = 0; i < menuTexts.size(); ++i) {
         Text text;
@@ -63,7 +63,7 @@ void GameMenu::initializeMenuItems() {
 }
 
 void GameMenu::initializeButtons() {
-    float startY = 250; // Òàêàÿ æå íà÷àëüíàÿ ïîçèöèÿ êàê ó òåêñòà
+    float startY = 250;
 
     for (size_t i = 0; i < menuItems.size(); ++i) {
         RectangleShape button(Vector2f(BUTTON_WIDTH, BUTTON_HEIGHT));
@@ -159,7 +159,6 @@ void GameMenu::handleEvents() {
             break;
 
         case Event::MouseMoved:
-            // Îáðàáîòêà hover ýôôåêòà ìûøüþ äëÿ êíîïîê
             for (size_t i = 0; i < buttons.size(); ++i) {
                 FloatRect bounds = buttons[i].getGlobalBounds();
                 if (bounds.contains(static_cast<float>(event.mouseMove.x),
@@ -224,11 +223,10 @@ void GameMenu::render() {
     gameWindow.clear(backgroundColor);
 
     RectangleShape backgroundOverlay(Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
-    backgroundOverlay.setFillColor(Color(0, 0, 0, 150)); // Ñäåëàåì îâåðëåé íåìíîãî ïðîçðà÷íåå
+    backgroundOverlay.setFillColor(Color(0, 0, 0, 150));
     gameWindow.draw(background);
     gameWindow.draw(backgroundOverlay);
 
-    // Çàãîëîâîê èãðû
     Text title;
     title.setFont(font);
     title.setString("EARN TO DIE");
@@ -243,7 +241,6 @@ void GameMenu::render() {
 
     gameWindow.draw(title);
 
-    // Ïîäçàãîëîâîê
     Text subtitle;
     subtitle.setFont(font);
     subtitle.setString("Autor: MrArs_Fok");
@@ -257,27 +254,23 @@ void GameMenu::render() {
 
     gameWindow.draw(subtitle);
 
-    // Ðèñóåì êíîïêè
     for (const auto& button : buttons) {
         gameWindow.draw(button);
     }
 
-    // Ðèñóåì òåêñò íà êíîïêàõ
     for (const auto& item : menuItems) {
         gameWindow.draw(item);
     }
 
-    // Ïîäñêàçêè óïðàâëåíèÿ
     Text controlsHint;
     controlsHint.setFont(font);
     controlsHint.setString("Use ARROW KEYS to navigate, ENTER to select");
     controlsHint.setCharacterSize(14);
-    controlsHint.setFillColor(Color(200, 200, 200)); // Ñäåëàåì ñâåòëåå äëÿ ëó÷øåé âèäèìîñòè
+    controlsHint.setFillColor(Color(200, 200, 200));
     controlsHint.setPosition(20, WINDOW_HEIGHT - 35);
 
     gameWindow.draw(controlsHint);
 
-    // Âûâîä âñåãî çîëîòà
     Text totalGolds;
     totalGolds.setFont(font);
     totalGolds.setString("TotalGold:" + std::to_string(totalGoldRef));
@@ -287,7 +280,6 @@ void GameMenu::render() {
 
     gameWindow.draw(totalGolds);
 
-    // Òåêóùèé âûáîð
     Text selectionHint;
     selectionHint.setFont(font);
     selectionHint.setString("Selected: " + menuItems[menuController.getSelectedIndex()].getString());
@@ -302,8 +294,6 @@ void GameMenu::render() {
 
 void GameMenu::updateMenuVisuals() {
     int selectedIndex = menuController.getSelectedIndex();
-
-    // Âûâîäèì òîëüêî åñëè èíäåêñ èçìåíèëñÿ
     if (selectedIndex != previousSelectedIndex) {
         std::cout << "=== SELECTION CHANGED ===" << std::endl;
         std::cout << "Previous: " << previousSelectedIndex << " -> New: " << selectedIndex << std::endl;
@@ -315,23 +305,19 @@ void GameMenu::updateMenuVisuals() {
         if (i >= buttons.size()) continue;
 
         if (i == selectedIndex) {
-            // Ïîäñâåòêà âûáðàííîé êíîïêè
             buttons[i].setFillColor(Color(100, 100, 100, 200));
             buttons[i].setOutlineColor(selectedColor);
             buttons[i].setOutlineThickness(3.0f);
 
-            // Ïîäñâåòêà òåêñòà
             menuItems[i].setFillColor(selectedColor);
             menuItems[i].setStyle(sf::Text::Bold);
             menuItems[i].setScale(1.03f, 1.03f);
         }
         else {
-            // Îáû÷íîå ñîñòîÿíèå êíîïêè
             buttons[i].setFillColor(buttonColor);
             buttons[i].setOutlineColor(buttonOutlineColor);
             buttons[i].setOutlineThickness(2.0f);
 
-            // Îáû÷íîå ñîñòîÿíèå òåêñòà
             menuItems[i].setFillColor(normalColor);
             menuItems[i].setStyle(sf::Text::Regular);
             menuItems[i].setScale(1.0f, 1.0f);
@@ -410,7 +396,6 @@ void GameMenu::initializeConfirmationDialog() {
         textRect.top + textRect.height / 2.0f);
     confirmationText.setPosition(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 40);
 
-    // Êíîïêà YES 
     yesText.setFont(font);
     yesText.setString("YES");
     yesText.setCharacterSize(24);
@@ -420,8 +405,7 @@ void GameMenu::initializeConfirmationDialog() {
     yesText.setOrigin(yesRect.left + yesRect.width / 2.0f,
         yesRect.top + yesRect.height / 2.0f);
     yesText.setPosition(WINDOW_WIDTH / 2 - 90, WINDOW_HEIGHT / 2 + 50);
-
-    // Êíîïêà NO 
+ 
     noText.setFont(font);
     noText.setString("NO");
     noText.setCharacterSize(24);
@@ -450,7 +434,6 @@ void GameMenu::handleConfirmationEvents(Event& event) {
         case Keyboard::Enter:
         case Keyboard::Space:
             if (yesSelected) {
-                // Ïîäòâåðäèëè íîâóþ èãðó
                 if (waitingForNewGameConfirmation) {
 
                     resetGoldRequested = true;
@@ -499,7 +482,6 @@ void GameMenu::handleConfirmationEvents(Event& event) {
 
             if (yesBounds.contains(static_cast<float>(event.mouseButton.x),
                 static_cast<float>(event.mouseButton.y))) {
-                // Ïîäòâåðäèëè íîâóþ èãðó
                 if (waitingForNewGameConfirmation) {
                     resetGoldRequested = true;
 
@@ -542,13 +524,10 @@ void GameMenu::updateConfirmationVisuals() {
 
 void GameMenu::renderConfirmationDialog() {
     if (!confirmationActive) return;
-
-    // Ïîëóïðîçðà÷íûé ôîí
     RectangleShape overlay(Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
     overlay.setFillColor(Color(0, 0, 0, 150));
     gameWindow.draw(overlay);
 
-    // Ðèñóåì äèàëîã
     gameWindow.draw(confirmationBox);
     gameWindow.draw(confirmationText);
     gameWindow.draw(yesText);

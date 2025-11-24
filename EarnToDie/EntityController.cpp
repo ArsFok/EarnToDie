@@ -78,7 +78,6 @@ void EntityController::updateGameSpeed() {
 void EntityController::updateBoost(float deltaTime)
 {
     if (m_isShiftPressed && m_canUseBoost) {
-        // Потребление топлива буста
         float consumption = BOOST_FUEL_CONSUMPTION * deltaTime;
         if (m_shopMenu) {
             int boostLevel = m_shopMenu->getBoostLevel();
@@ -127,8 +126,6 @@ void EntityController::applyShopUpgrades() {
 
     std::cout << "DEBUG: EntityController accessing shop menu at address: " << m_shopMenu << std::endl;
     std::cout << "DEBUG: Before getting levels from shop..." << std::endl;
-
-    // Используем правильные методы
     int speedLevel = m_shopMenu->getSpeedLevel();
     int boostLevel = m_shopMenu->getBoostLevel();
 
@@ -139,7 +136,6 @@ void EntityController::applyShopUpgrades() {
     float oldBoostMultiplier = m_boostMultiplier;
     int oldMaxBoostFuel = m_maxBoostFuel;
 
-    // Применяем улучшения
     m_baseGameSpeed = SPEED * (1.0f + speedLevel * 0.2f);
     m_boostMultiplier = 2.0f + boostLevel * 0.1f;
     m_maxBoostFuel = 100 + boostLevel * 20;

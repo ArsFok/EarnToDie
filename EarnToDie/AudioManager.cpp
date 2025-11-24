@@ -2,11 +2,9 @@
 #include <iostream>
 
 AudioManager::AudioManager() {
-    // Инициализация
 }
 
 AudioManager::~AudioManager() {
-    // Очищаем память от музыки
     for (auto& m : music) {
         delete m.second;
     }
@@ -44,7 +42,6 @@ bool AudioManager::loadMusic(const std::string& name, const std::string& filenam
     return true;
 }
 
-// НОВЫЙ МЕТОД: Музыка для уровней
 void AudioManager::playLevelMusic(int level) {
     std::string musicName;
     switch (level) {
@@ -67,7 +64,6 @@ void AudioManager::playLevelMusic(int level) {
     }
 }
 
-// НОВЫЙ МЕТОД: Музыка для меню
 void AudioManager::playMenuMusic() {
     if (music.find("menu") != music.end()) {
         if (currentMusic) {

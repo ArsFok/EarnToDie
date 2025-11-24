@@ -26,9 +26,8 @@ void ZombieState::update(float deltaTime) {
         float oldTimer = knockbackTimer;
         knockbackTimer += deltaTime;
 
-        // Плавное затухание откидывания
         float progress = knockbackTimer / knockbackDuration;
-        float fadeFactor = 1.0f - (progress * progress); // Квадратичное затухание
+        float fadeFactor = 1.0f - (progress * progress);
 
         knockbackVelocity = knockbackVelocity * fadeFactor;
 

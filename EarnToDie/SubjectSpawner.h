@@ -35,7 +35,6 @@ public:
             sf::Vector2f position(static_cast<float>(240 + rand() % (WINDOW_WIDTH - 495)), -60.f);
             float radius = 30;
 
-            // Создаем CircleObject
             std::unique_ptr<CircleObject> circleObject = std::unique_ptr<CircleObject>(new CircleObject(radius, position));
             subjects.push_back(std::unique_ptr<ObjectController>(new ObjectController(std::move(circleObject), speed)));
         }

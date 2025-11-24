@@ -9,7 +9,7 @@
 SettingsMenu::SettingsMenu(sf::RenderWindow& window, AudioManager& audioManager)
     : gameWindow(window)
     , audioManager(audioManager)
-    , menuController(4) // 4 пункта меню: Music, Sound, Save, Back
+    , menuController(4)
     , normalColor(sf::Color::White)
     , selectedColor(sf::Color::Yellow)
     , buttonColor(sf::Color(70, 70, 70, 200))
@@ -21,7 +21,7 @@ SettingsMenu::SettingsMenu(sf::RenderWindow& window, AudioManager& audioManager)
     if (!font.loadFromFile("arial.ttf")) {
         std::cout << "Failed to load font for settings menu!" << std::endl;
     }
-    if (!backgroundTexture.loadFromFile("menu_background.png")) { // Тот же фон что в ShopMenu
+    if (!backgroundTexture.loadFromFile("menu_background.png")) {
         backgroundTexture.create(WINDOW_WIDTH, WINDOW_HEIGHT);
     }
     background.setTexture(backgroundTexture);
@@ -55,32 +55,28 @@ void SettingsMenu::initializeMenuItems() {
     float startY = WINDOW_HEIGHT / 2 - (menuTexts.size() * (BUTTON_HEIGHT + BUTTON_PADDING)) / 2 + 50;
 
     for (size_t i = 0; i < menuTexts.size(); ++i) {
-        // Текст пункта меню
         sf::Text text;
         text.setFont(font);
         text.setString(menuTexts[i]);
-        text.setCharacterSize(22); // Такой же размер как в ShopMenu
+        text.setCharacterSize(22);
         text.setFillColor(normalColor);
 
         sf::FloatRect textRect = text.getLocalBounds();
         text.setOrigin(textRect.left + textRect.width / 2.0f,
             textRect.top + textRect.height / 2.0f);
-        // Позиционируем как в ShopMenu
         text.setPosition(WINDOW_WIDTH / 2.0f - 120,
             startY + i * (BUTTON_HEIGHT + BUTTON_PADDING) + BUTTON_HEIGHT / 2);
 
         menuSettingsItems.push_back(text);
 
-        // Текст значения настройки
         sf::Text valueText;
         valueText.setFont(font);
-        valueText.setCharacterSize(20); // Такой же размер как в ShopMenu
+        valueText.setCharacterSize(20);
         valueText.setFillColor(valueColor);
 
         sf::FloatRect valueRect = valueText.getLocalBounds();
         valueText.setOrigin(valueRect.left + valueRect.width / 2.0f,
             valueRect.top + valueRect.height / 2.0f);
-        // Позиционируем как в ShopMenu
         valueText.setPosition(WINDOW_WIDTH / 2.0f + 80,
             startY + i * (BUTTON_HEIGHT + BUTTON_PADDING) + BUTTON_HEIGHT / 2);
 
@@ -106,14 +102,12 @@ void SettingsMenu::initializeButtons() {
 }
 
 void SettingsMenu::updateValueTexts() {
-    // Проверяем, что векторы имеют достаточный размер
     if (valueTexts.size() > SettingsMenuItems::MUSIC_VOLUME) {
         valueTexts[SettingsMenuItems::MUSIC_VOLUME].setString(std::to_string(static_cast<int>(musicVolume)) + "%");
     }
     if (valueTexts.size() > SettingsMenuItems::SOUND_VOLUME) {
         valueTexts[SettingsMenuItems::SOUND_VOLUME].setString(std::to_string(static_cast<int>(soundVolume)) + "%");
     }
-    // Для SAVE_SETTINGS и BACK оставляем пустые строки
     if (valueTexts.size() > SettingsMenuItems::SAVE_SETTINGS) {
         valueTexts[SettingsMenuItems::SAVE_SETTINGS].setString("");
     }
@@ -252,9 +246,8 @@ void SettingsMenu::handleContinuousInput() {
     static bool keyProcessed = false;
     static bool wasKeyPressed = false;
 
-    // Настройки задержки
-    const float initialDelay = 500.0f;   // Первое нажатие - 0.5 секунды
-    const float repeatDelay = 150.0f;    // Повторения - 0.15 секунды
+    const float initialDelay = 500.0f;
+    const float repeatDelay = 150.0f;
 
     bool leftPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Left) ||
         sf::Keyboard::isKeyPressed(sf::Keyboard::A) ||
@@ -264,7 +257,6 @@ void SettingsMenu::handleContinuousInput() {
         sf::Keyboard::isKeyPressed(sf::Keyboard::D) ||
         sf::Keyboard::isKeyPressed(sf::Keyboard::Num9);
 
-    // Если нажаты обе - игнорируем
     if (leftPressed && rightPressed) {
         keyProcessed = false;
         wasKeyPressed = false;
@@ -274,9 +266,7 @@ void SettingsMenu::handleContinuousInput() {
     float elapsedTime = keyTimer.getElapsedTime().asMilliseconds();
     bool anyKeyPressed = leftPressed || rightPressed;
 
-    // Если клавиша только что нажата
     if (anyKeyPressed && !wasKeyPressed) {
-        // Немедленно обрабатываем первое нажатие
         if (leftPressed) adjustSetting(-1);
         if (rightPressed) adjustSetting(1);
 
@@ -284,9 +274,7 @@ void SettingsMenu::handleContinuousInput() {
         keyProcessed = true;
         wasKeyPressed = true;
     }
-    // Если клавиша удерживается
     else if (anyKeyPressed && wasKeyPressed) {
-        // Обрабатываем только если прошло достаточно времени
         if (elapsedTime > (keyProcessed ? repeatDelay : initialDelay)) {
             if (leftPressed) adjustSetting(-1);
             if (rightPressed) adjustSetting(1);
@@ -295,7 +283,6 @@ void SettingsMenu::handleContinuousInput() {
             keyProcessed = true;
         }
     }
-    // Если клавиша отпущена
     else {
         keyProcessed = false;
         wasKeyPressed = false;
@@ -316,7 +303,6 @@ void SettingsMenu::adjustSetting(int direction) {
         updateValueTexts();
         saveSettings();
 
-        // Визуальная обратная связь - мигание текста
         if (menuSettingsItems.size() > selectedIndex) {
             menuSettingsItems[selectedIndex].setFillColor(sf::Color::Green);
         }
@@ -328,8 +314,6 @@ void SettingsMenu::adjustSetting(int direction) {
         audioManager.setSoundVolume(soundVolume);
         updateValueTexts();
         saveSettings();
-
-        // Визуальная обратная связь - мигание текста
         if (menuSettingsItems.size() > selectedIndex) {
             menuSettingsItems[selectedIndex].setFillColor(sf::Color::Green);
         }
@@ -363,7 +347,7 @@ void SettingsMenu::updateMenuVisuals() {
             buttons[i].setOutlineThickness(3.0f);
             menuSettingsItems[i].setFillColor(selectedColor);
             menuSettingsItems[i].setStyle(sf::Text::Bold);
-            menuSettingsItems[i].setScale(1.03f, 1.03f); // Такой же масштаб как в ShopMenu
+            menuSettingsItems[i].setScale(1.03f, 1.03f);
         }
         else {
             buttons[i].setFillColor(buttonColor);
@@ -409,52 +393,46 @@ void SettingsMenu::handleMenuSelection(int selectedIndex) {
 }
 
 void SettingsMenu::render() {
-    // Полупрозрачный темный фон (как в ShopMenu)
     sf::RectangleShape overlay(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
     overlay.setFillColor(sf::Color(0, 0, 0, 180));
     gameWindow.draw(background);
     gameWindow.draw(overlay);
 
-    // Заголовок настроек
     sf::Text settingsTitle;
     settingsTitle.setFont(font);
     settingsTitle.setString("SETTINGS");
-    settingsTitle.setCharacterSize(50); // Такой же размер как в ShopMenu
+    settingsTitle.setCharacterSize(50);
     settingsTitle.setFillColor(titleColor);
     settingsTitle.setStyle(sf::Text::Bold);
 
     sf::FloatRect titleRect = settingsTitle.getLocalBounds();
     settingsTitle.setOrigin(titleRect.left + titleRect.width / 2.0f,
         titleRect.top + titleRect.height / 2.0f);
-    settingsTitle.setPosition(WINDOW_WIDTH / 2.0f, 100); // Такая же позиция как в ShopMenu
+    settingsTitle.setPosition(WINDOW_WIDTH / 2.0f, 100);
     gameWindow.draw(settingsTitle);
 
-    // Рисуем кнопки
     for (const auto& button : buttons) {
         gameWindow.draw(button);
     }
 
-    // Рисуем текст пунктов меню
     for (const auto& text : menuSettingsItems) {
         gameWindow.draw(text);
     }
 
-    // Рисуем тексты значений
     for (const auto& valueText : valueTexts) {
         gameWindow.draw(valueText);
     }
 
-    // Подсказки управления
     sf::Text controlsHint;
     controlsHint.setFont(font);
     controlsHint.setString("ARROWS/A/D/0/9: Adjust volume  |  PAGE UP/DOWN: Quick adjust  |  HOME/END: Min/Max  |  ENTER: Confirm  |  ESC: Back");
-    controlsHint.setCharacterSize(16); // Немного больше для лучшей читаемости
+    controlsHint.setCharacterSize(16);
     controlsHint.setFillColor(sf::Color(200, 200, 200));
 
     sf::FloatRect hintRect = controlsHint.getLocalBounds();
     controlsHint.setOrigin(hintRect.left + hintRect.width / 2.0f,
         hintRect.top + hintRect.height / 2.0f);
-    controlsHint.setPosition(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT - 50); // Такая же позиция как в ShopMenu
+    controlsHint.setPosition(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT - 50);
     gameWindow.draw(controlsHint);
 }
 
@@ -490,11 +468,9 @@ void SettingsMenu::loadSettings() {
         bool loadedSound = false;
 
         while (std::getline(file, line)) {
-            // Убираем пробелы в начале и конце строки
             line.erase(0, line.find_first_not_of(" \t"));
             line.erase(line.find_last_not_of(" \t") + 1);
 
-            // Пропускаем пустые строки и комментарии
             if (line.empty() || line[0] == '#') continue;
 
             size_t delimiterPos = line.find('=');
@@ -502,7 +478,6 @@ void SettingsMenu::loadSettings() {
                 std::string key = line.substr(0, delimiterPos);
                 std::string value = line.substr(delimiterPos + 1);
 
-                // Убираем пробелы вокруг ключа и значения
                 key.erase(0, key.find_first_not_of(" \t"));
                 key.erase(key.find_last_not_of(" \t") + 1);
                 value.erase(0, value.find_first_not_of(" \t"));

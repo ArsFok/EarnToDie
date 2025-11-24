@@ -8,7 +8,6 @@
 
 using namespace std;
 
-
 void GameState::draw(RenderWindow& window) {
 	const float BLOCK_WIDTH = 190;
 	const float BLOCK_HEIGHT = 180;
@@ -19,14 +18,12 @@ void GameState::draw(RenderWindow& window) {
 	statsBackground.setPosition(5, 5);
 	window.draw(statsBackground);
 
-	// Рисуем все тексты внутри блока
-	window.draw(speedText);    // Позиция: (10, 10)
-	window.draw(fuelText);     // Позиция: (10, 40)  
-	window.draw(distText);     // Позиция: (10, 70)
-	window.draw(goldText);     // Позиция: (10, 100)
-	window.draw(boostText);    // Позиция: (10, 130)
+	window.draw(speedText);    // (10, 10)
+	window.draw(fuelText);     // (10, 40)  
+	window.draw(distText);     // (10, 70)
+	window.draw(goldText);     // (10, 100)
+	window.draw(boostText);    // (10, 130)
 
-	// Фон для текста помощи
 	FloatRect helpBounds = helpText.getGlobalBounds();
 	RectangleShape helpBackground(Vector2f(helpBounds.width + 40, helpBounds.height + 20));
 	helpBackground.setFillColor(Color(0, 0, 0, 200));
@@ -39,17 +36,15 @@ void GameState::decreaseSpeed(int speed) {
 	playerSpeed = speed;
 	updateSpeedText();
 }
+
 void GameState::setBoostInfo(int fuel, int maxFuel, bool isActive) {
-
-		// Обновляем цвет текста
-		boostText.setFillColor(isActive ? Color::Yellow : Color::White);
-
-		// Обновляем текст
-		stringstream boostSS;
-		boostSS << "Boost: " << fuel << "/" << maxFuel;
-		if (isActive) boostSS << " \n[ACTIVE]";
-		boostText.setString(boostSS.str());
+	boostText.setFillColor(isActive ? Color::Yellow : Color::White);
+	stringstream boostSS;
+	boostSS << "Boost: " << fuel << "/" << maxFuel;
+	if (isActive) boostSS << " \n[ACTIVE]";
+	boostText.setString(boostSS.str());
 }
+
 void GameState::applyShopUpgrades() {
 	if (!m_shopMenu) {
 		std::cout << "DEBUG: No shop menu in GameState!" << std::endl;
@@ -80,11 +75,13 @@ int GameState::getMaxFuel() const {
 void GameState::decreaseFuel(int fuel) {
 	playerFuel -= fuel * 3;
 	if (playerFuel <= 0) {
-		setGameOver();	
+		playerFuel = 0;
+		setGameOver();
 	}
 	cout << "[decreaseFUEL:]" << playerFuel << endl;
 	updateFuelText();
 }
+
 void GameState::decreaseDist(int dist) {
 	playerDist += dist;
 	if (targetDistance > 0 && playerDist >= targetDistance) {
@@ -104,12 +101,12 @@ void GameState::decreaseDist(int dist) {
 	updateDistText();
 }
 
-
 void GameState::updateGoldText() {
 	stringstream ss;
 	ss << "Gold: " << playerGold;
 	goldText.setString(ss.str());
 }
+
 void GameState::updateSpeedText() {
 	stringstream ss;
 
@@ -146,6 +143,7 @@ void GameState::updateDistText() {
 	}
 	distText.setString(ss.str());
 }
+
 void GameState::loadGold() {
 	ifstream file("savegame.dat");
 	if (file.is_open()) {
@@ -159,6 +157,7 @@ void GameState::loadGold() {
 	}
 	playerGold = 0;
 }
+
 void GameState::saveGold() {
 	ofstream file("savegame.dat");
 	if (file.is_open()) {
@@ -170,16 +169,18 @@ void GameState::saveGold() {
 		cout << "Error saving gold!" << endl;
 	}
 }
+
 void GameState::addGold(int amount) {
 	playerGold += amount;
 	totalGold += amount;
 	cout << "[decreaseGOLD:]" << playerGold << endl;
 	updateGoldText();
-
 }
-int GameState::getTotalGold() const{
+
+int GameState::getTotalGold() const {
 	return totalGold;
 }
+
 void GameState::resetGold() {
 	playerGold = 0;
 	totalGold = 0;
@@ -187,9 +188,29 @@ void GameState::resetGold() {
 	saveGold();
 	cout << "Gold reset to 0" << endl;
 }
-void GameState::applySlowEffect(float duration, float factor) {
-	slowEffect.activate(duration, factor);
+
+
+void GameState::addSlowTime(float additionalDuration) {
+	if (slowEffect.isActive()) {
+		float remaining = slowEffect.getRemainingTime();
+		slowEffect.activate(remaining + additionalDuration, slowEffect.getSlowFactor());
+	}
+	else {
+		slowEffect.activate(additionalDuration, 0.3f);
+	}
 }
+
+bool GameState::isSlowEffectCritical() const {
+	return slowEffect.getRemainingTime() > 10.0f;
+}
+
+void GameState::checkSlowEffectGameOver() {
+	if (isSlowEffectCritical()) {
+		setGameOver();
+		std::cout << "GAME OVER: Slow effect reached critical duration (10 seconds)!" << std::endl;
+	}
+}
+
 
 float GameState::getSpeedMultiplier() const {
 	return slowEffect.isActive() ? slowEffect.getSlowFactor() : 1.0f;
