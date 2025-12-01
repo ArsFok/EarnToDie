@@ -1,21 +1,21 @@
-#pragma once
-#include <SFML/Graphics.hpp>;
-#include "const.h"
+    #pragma once
+    #include <SFML/Graphics.hpp>;
+    #include "const.h"
 
-using namespace sf;
+    using namespace sf;
 
 
-class Entity
-{
-private:
-    float size;
-    Vector2f speed;
-    Texture carTexture;
+    class Entity
+    {
+    private:
+        float size;
+        Vector2f speed;
+        Texture carTexture;
 
-public:
-    Entity();
-    virtual ~Entity() {};
+    public:
+        Entity();
+        virtual ~Entity() {};
 
-    RectangleShape shape;
-    void move(Vector2f direction);
-};
+        RectangleShape shape;
+        void move(Vector2f direction);
+    };

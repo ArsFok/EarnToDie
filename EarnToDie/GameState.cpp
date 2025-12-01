@@ -201,7 +201,7 @@ void GameState::addSlowTime(float additionalDuration) {
 }
 
 bool GameState::isSlowEffectCritical() const {
-	return slowEffect.getRemainingTime() > 10.0f;
+	return slowEffect.getRemainingTime() > 100.0f;
 }
 
 void GameState::checkSlowEffectGameOver() {
